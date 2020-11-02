@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	buffer_map = mmap(NULL, WIDTH*HEIGHT*2, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	
 	draw_rect({50, 50}, {WIDTH-50, Height-50}, *buffer_map, from_hex(0x00FF00));
-	ioctl(fd, 0x4680, & (struct fb_copyarea){.dx=0, .dy=0, .width=WIDTH, .height=HEIGHT})
+	ioctl(fd, 0x4680, & (struct fb_copyarea){.dx=0, .dy=0, .width=WIDTH, .height=HEIGHT});
 
 	printf("Hello World, I'm game!\n");
 
