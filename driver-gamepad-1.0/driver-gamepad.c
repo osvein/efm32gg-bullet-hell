@@ -1,41 +1,49 @@
-/*
- * This is a demo Linux kernel module.
- */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
 
-/*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
- */
-
-static int __init template_init(void)
+static int gamepad_open(struct inode *inode, struct file *file)
 {
-	printk("Hello World, here is your module speaking\n");
-	return 0;
+	return -1;
 }
 
-/*
- * template_cleanup - function to cleanup this module from kernel space
- *
- * This is the second of two exported functions to handle cleanup this
- * code from a running kernel
- */
-
-static void __exit template_cleanup(void)
+static int gamepad_release(struct inode *inode, struct file *file)
 {
-	 printk("Short life for a small module...\n");
+	return -1;
 }
 
-module_init(template_init);
-module_exit(template_cleanup);
+static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
+	loff_t *off
+) {
+	return -1;
+}
 
-MODULE_DESCRIPTION("Small module, demo only, not very useful.");
+static ssize_t gamepad_write(struct file *file, char __user *buf, size_t count,
+	loff_t *off
+) {
+	return -1;
+}
+
+static int __init gamepad_init(void)
+{
+	return -1;
+}
+
+static void __exit gamepad_cleanup(void)
+{
+
+}
+
+static struct file_operations gamepad_fops = {
+	.owner = THIS_MODULE,
+	.open = gamepad_open,
+	.release = gamepad_release,
+	.read = gamepad_read,
+	.write = gamepad_write
+};
+
+module_init(gamepad_init);
+module_exit(gamepad_cleanup);
+
+MODULE_DESCRIPTION("TDT4258 gamepad driver.");
 MODULE_LICENSE("GPL");
-
