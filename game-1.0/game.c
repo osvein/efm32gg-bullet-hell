@@ -3,8 +3,8 @@
 #include <sys/mman.h>
 #include <linux/fb.h>
 
-define WIDTH = 320
-define HEIGHT = 240
+#define WIDTH = 320
+#define HEIGHT = 240
 
 typedef struct {
 	int x;
