@@ -74,7 +74,7 @@ err:
 }
 
 module_init(gamepad_init);
-module_exit(gamepad_cleanup);
+module_exit(gamepad_exit);
 
 MODULE_DESCRIPTION("TDT4258 gamepad driver.");
 MODULE_LICENSE("GPL");
