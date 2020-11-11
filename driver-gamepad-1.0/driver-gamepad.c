@@ -5,6 +5,8 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
+#include "efm32gg.h"
+
 /* TODO remember to write in report about gpio subsystem */
 
 char gpio;
