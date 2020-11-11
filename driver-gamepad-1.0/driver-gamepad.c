@@ -5,34 +5,44 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 
+/* TODO remember to write in report about gpio subsystem */
+
+char gpio;
+
 static int gamepad_open(struct inode *inode, struct file *file)
 {
-	return -1;
-}
-
-static int gamepad_release(struct inode *inode, struct file *file)
-{
-	return -1;
+	if ((file->f_flags & O_ACCMODE) != O_RDONLY) return -EACCESS;
+	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_GPIO; /* enable GPIO clock */
+	*GPIO_PC_MODEL = 0x33333333; /* input with filter and pull */
+	*GPIO_PC_DOUT = 0xFF; /* pull up */
+	return 0;
 }
 
 static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
-	return -1;
+	if (count < 1) return 0;
+	*buf = *(GAMEPAD_PORT + GPIO_PA_DIN);
+	return 1;
 }
 
-static ssize_t gamepad_write(struct file *file, const char __user *buf, size_t count,
-	loff_t *off
-) {
-	return -1;
+/*static int gamepad_mmap(struct file *file, struct vm_area_struct *vma)
+{
+	vma->vm_ops = &gamepad_vmops;
+	return 0;
 }
+
+static struct vm_operations_struct gamepad_vmops = {
+	.open = gamepad_vmopen,
+	.close = gamepad_vmclose,
+	.fault = gamepad_vmfault,
+};*/
 
 static struct file_operations gamepad_fops = {
 	.owner = THIS_MODULE,
 	.open = gamepad_open,
-	.release = gamepad_release,
 	.read = gamepad_read,
-	.write = gamepad_write
+//	.mmap = gamepad_mmap,
 };
 
 static struct cdev gamepad_cdev = {
