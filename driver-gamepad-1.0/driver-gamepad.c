@@ -13,7 +13,7 @@ char gpio;
 
 static int gamepad_open(struct inode *inode, struct file *file)
 {
-	if ((file->f_flags & O_ACCMODE) != O_RDONLY) return -EACCESS;
+	if ((file->f_flags & O_ACCMODE) != O_RDONLY) return -EACCES;
 	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_GPIO; /* enable GPIO clock */
 	*GPIO_PC_MODEL = 0x33333333; /* input with filter and pull */
 	*GPIO_PC_DOUT = 0xFF; /* pull up */
@@ -24,7 +24,7 @@ static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
 	if (count < 1) return 0;
-	*buf = *(GAMEPAD_PORT + GPIO_PA_DIN);
+	*buf = *GPIO_PC_DIN;
 	return 1;
 }
 
