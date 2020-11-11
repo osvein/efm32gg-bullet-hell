@@ -21,7 +21,7 @@ static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
 	return -1;
 }
 
-static ssize_t gamepad_write(struct file *file, char __user *buf, size_t count,
+static ssize_t gamepad_write(struct file *file, const char __user *buf, size_t count,
 	loff_t *off
 ) {
 	return -1;
@@ -48,8 +48,8 @@ static void gamepad_exit(void)
 
 	dev = gamepad_cdev.dev;
 	count = gamepad_cdev.count;
-	device_destroy(&gamepad_class, dev);
-	class_destroy(&gamepad_class);
+	device_destroy(gamepad_class, dev);
+	class_destroy(gamepad_class);
 	cdev_del(&gamepad_cdev);
 	unregister_chrdev_region(dev, count);
 }
