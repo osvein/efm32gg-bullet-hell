@@ -41,6 +41,19 @@ static struct cdev gamepad_cdev = {
 
 static struct class *gamepad_class;
 
+static void gamepad_exit(void)
+{
+	dev_t dev;
+	unsigned count;
+
+	dev = gamepad_cdev.dev;
+	count = gamepad_cdev.count;
+	device_destroy(&gamepad_class, dev);
+	class_destroy(&gamepad_class);
+	cdev_del(&gamepad_cdev);
+	unregister_chrdev_region(dev, count);
+}
+
 static int __init gamepad_init(void)
 {
 	int ret;
@@ -58,19 +71,6 @@ static int __init gamepad_init(void)
 err:
 	gamepad_exit();
 	return ret;
-}
-
-static void gamepad_exit(void)
-{
-	dev_t dev;
-	unsigned count;
-
-	dev = gamepad_cdev.dev;
-	count = gamepad_cdev.count;
-	device_destroy(&gamepad_class, dev);
-	class_destroy(&gamepad_class);
-	cdev_del(&gamepad_cdev);
-	unregister_chrdev_region(dev, count);
 }
 
 module_init(gamepad_init);
