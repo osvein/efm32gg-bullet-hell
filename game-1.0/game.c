@@ -35,6 +35,11 @@ uint16_t from_hex(unsigned long hex_rgb){
 	return r|g|b;
 }
 
+void error(void){
+	perror()
+	exit(1)
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -42,8 +47,13 @@ int main(int argc, char *argv[])
 	int fd;
 
 	fd = open("/dev/fb0", O_RDWR);
+	if (fd < 0){
+		error();
+	}
 	buffer_map = mmap(NULL, WIDTH*HEIGHT*2, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-	
+	if (buffer_map == MAP_FAILED){
+		error();
+	}
 	draw_rect((Pt){50, 50}, (Pt){WIDTH-50, HEIGHT-50}, buffer_map, from_hex(0x00FF00));
 	ioctl(fd, 0x4680, & (struct fb_copyarea){.dx=0, .dy=0, .width=WIDTH, .height=HEIGHT});
 
