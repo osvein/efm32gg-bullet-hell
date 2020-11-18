@@ -3,6 +3,7 @@
 #include <sys/mman.h>
 #include <linux/fb.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #define WIDTH = 320
 #define HEIGHT = 240
