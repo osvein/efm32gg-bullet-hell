@@ -45,7 +45,7 @@ static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
 	if (count < 1) return 0;
-	*buf = ioread32(gamepad_portaddr + gamepad_portoff_din);
+	*buf = ioread32(gamepad_port + gamepad_portoff_din);
 	return 1;
 }
 
@@ -141,8 +141,8 @@ static int __init gamepad_init(void)
 	}
 
 	gamepad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO");
-	if (IS_ERR(gpioclk)) return -PTR_ERR(gpioclk);
-	ret = clk_enable(gpioclk);
+	if (IS_ERR(gamepad_gpioclk)) return -PTR_ERR(gamepad_gpioclk);
+	ret = clk_enable(gamepad_gpioclk);
 	if (ret < 0) goto err;
 	iowrite32(0x33333333, gamepad_port + gamepad_portoff_model);
 	iowrite32(0xFF, gamepad_port + gamepad_portoff_dout);
