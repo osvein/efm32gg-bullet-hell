@@ -10,6 +10,8 @@
 #define WIDTH 320
 #define HEIGHT 240
 
+player = {160, 120}
+
 uint16_t *buffer_map = mmap(NULL, WIDTH*HEIGHT*2, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
 /**
