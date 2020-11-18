@@ -22,7 +22,7 @@ void draw_rect(Pt pt1, Pt pt2, uint16_t *buffer, uint16_t colour){
 	Pt pixel;
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
 		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
-			*buffer[idx(pixel)] = colour;
+			buffer[idx(pixel)] = colour;
 		}
 	}
 }
