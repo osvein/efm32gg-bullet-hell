@@ -118,12 +118,12 @@ static int __init gamepad_init(void)
 	if (ret < 0) goto err;
 	gamepad_class = class_create(THIS_MODULE, "gamepad");
 	if (IS_ERR(gamepad_class)) {
-		ret = -PTR_ERR(gamepad_class);
+		ret = PTR_ERR(gamepad_class);
 		goto err;
 	}
 	gamepad_dev = device_create(gamepad_class, NULL, devno, NULL, "gamepad");
 	if (IS_ERR(gamepad_dev)) {
-		ret = -PTR_ERR(gamepad_dev);
+		ret = PTR_ERR(gamepad_dev);
 		goto err;
 	}
 
@@ -140,7 +140,10 @@ static int __init gamepad_init(void)
 	}
 
 	gamepad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO");
-	if (IS_ERR(gamepad_gpioclk)) return -PTR_ERR(gamepad_gpioclk);
+	if (IS_ERR(gamepad_gpioclk)) {
+		ret = PTR_ERR(gamepad_gpioclk);
+		goto err;
+	}
 	ret = clk_enable(gamepad_gpioclk);
 	if (ret < 0) goto err;
 	iowrite32(0x33333333, gamepad_port + gamepad_portoff_model);
