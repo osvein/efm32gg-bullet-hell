@@ -17,6 +17,14 @@ static const unsigned long gamepad_portoff_model = 0x04;
 static const unsigned long gamepad_portoff_dout = 0x0C;
 static const unsigned long gamepad_portoff_din = 0x1C;
 
+static struct class *gamepad_class;
+static struct device *gamepad_dev;
+static void __iomem *gamepad_port;
+static struct clk *gamepad_gpioclk;
+static struct cdev gamepad_cdev = {
+	.owner = THIS_MODULE
+};
+
 /**
  * Opens the gamepad
  * 
@@ -70,15 +78,6 @@ static struct file_operations gamepad_fops = {
 	.read = gamepad_read,
 //	.mmap = gamepad_mmap,
 };
-
-static struct cdev gamepad_cdev = {
-	.owner = THIS_MODULE
-};
-
-static struct class *gamepad_class;
-static struct device *gamepad_dev;
-static void __iomem *gamepad_port;
-static struct clk *gamepad_gpioclk;
 
 /**
  * Closes the gamepad and removes it from the device
