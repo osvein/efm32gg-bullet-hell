@@ -1,7 +1,9 @@
 #include <linux/cdev.h>
+#include <linux/clk.h>
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/init.h>
+#include <linux/io.h>
 #include <linux/ioport.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -115,12 +117,12 @@ static int __init gamepad_init(void)
 	if (ret < 0) goto err;
 	ret = cdev_add(&gamepad_cdev, devno, 1);
 	if (ret < 0) goto err;
-	gamepad_class = class_create(THIS_MODULE, "gamepad"));
+	gamepad_class = class_create(THIS_MODULE, "gamepad");
 	if (IS_ERR(gamepad_class)) {
 		ret = -PTR_ERR(gamepad_class);
 		goto err;
 	}
-	gamepad_dev = device_create(gamepad_class, NULL, dev, NULL, "gamepad");
+	gamepad_dev = device_create(gamepad_class, NULL, devno, NULL, "gamepad");
 	if (IS_ERR(gamepad_dev)) {
 		ret = -PTR_ERR(gamepad_dev);
 		goto err;
