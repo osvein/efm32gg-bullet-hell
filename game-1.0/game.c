@@ -4,6 +4,7 @@
 #include <linux/fb.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <fcntl.h>
 
 #define WIDTH 320
 #define HEIGHT 240
