@@ -5,16 +5,15 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#define WIDTH = 320
-#define HEIGHT = 240
+#define WIDTH 320
+#define HEIGHT 240
 
 typedef struct {
 	int x;
 	int y;
 } Pt;
 
-int idx(Pt point)
-{
+int idx(Pt point){
 	return point.x + WIDTH*point.y;
 }
 
