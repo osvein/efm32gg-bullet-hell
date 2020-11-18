@@ -11,6 +11,14 @@
 
 char gpio;
 
+/**
+ * Opens the gamepad
+ * 
+ * @param {struct inode} *inode - 
+ * @param {struct file} *file - 
+ * 
+ * @returns {???} - 
+*/
 static int gamepad_open(struct inode *inode, struct file *file)
 {
 	if ((file->f_flags & O_ACCMODE) != O_RDONLY) return -EACCES;
@@ -20,6 +28,16 @@ static int gamepad_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
+/**
+ * Read the input from the gamepad
+ * 
+ * @param {struct file} *file - the location of the file to write the input to
+ * @param {char ???}
+ * @param {size_t} count - 
+ * @param {loff_t} *off - 
+ * 
+ * @return {int} - 
+*/
 static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
@@ -40,6 +58,9 @@ static struct vm_operations_struct gamepad_vmops = {
 	.fault = gamepad_vmfault,
 };*/
 
+/**
+ * Registers the functions so that the kernel knows how they are invoked
+*/
 static struct file_operations gamepad_fops = {
 	.owner = THIS_MODULE,
 	.open = gamepad_open,
@@ -53,6 +74,9 @@ static struct cdev gamepad_cdev = {
 
 static struct class *gamepad_class;
 
+/**
+ * Closes the gamepad and removes it from the device
+*/
 static void gamepad_exit(void)
 {
 	dev_t dev;
@@ -66,6 +90,11 @@ static void gamepad_exit(void)
 	unregister_chrdev_region(dev, count);
 }
 
+/**
+ * Initializes the gamepad
+ * 
+ * @returns {} - 
+*/
 static int __init gamepad_init(void)
 {
 	int ret;
