@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <game.h>
 
+#include "util.h"
+#include "bullets.h"
+
 #define WIDTH  (320*64)
 #define HEIGHT  (240*64)
 
