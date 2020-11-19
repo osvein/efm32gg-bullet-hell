@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#define MIN(a, b) (a < b ? a : b)
+#define MAX(a, b) (a > b ? a : b)
 #define lenof(a) (sizeof(a)/sizeof(*(a)))
 #define endof(a) (a + lenof(a))
 
