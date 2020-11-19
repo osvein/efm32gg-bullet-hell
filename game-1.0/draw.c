@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <stdint.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -27,7 +28,7 @@ static Vec draw_upscale(Draw *self, Vec px) {
  * @returns {int} - the appropriate location in the framebuffer
 */
 static unsigned draw_getidx(Draw *self, Vec px) {
-	return point.x + self->stride*point.y;
+	return px.x + (self->stride/2) * px.y;
 }
 
 bool draw_isblank(Draw *self, Vec pt1, Vec pt2) {
@@ -39,8 +40,8 @@ void draw_blankall(Draw *self) {
 }
 
 void draw_commit(Draw *self, Vec pt1, Vec pt2) {
-	pt1 = draw_downscale(pt1);
-	pt2 = draw_downscale(pt2);
+	pt1 = draw_downscale(self, pt1);
+	pt2 = draw_downscale(self, pt2);
 	ioctl(self->fd, 0x4680, &(struct fb_copyarea){
 		.dx = pt1.x, .dy = pt1.y, .width = pt2.x-pt1.x, .height = pt2.y-pt1.y
 	});
@@ -56,7 +57,7 @@ void draw_unmap(Draw *self) {
 
 void draw_close(Draw *self) {
 	draw_unmap(self);
-	if (self->fd >= 0) close();
+	if (self->fd >= 0) close(self->fd);
 }
 
 int draw_map(Draw *self) {
@@ -69,12 +70,12 @@ int draw_map(Draw *self) {
 	{
 		struct fb_var_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_VSCREENINFO, &info) < 0) return -1;
-		self.size = draw_upscale(self, (Vec){info.xres, info.yres});
+		self->size = draw_upscale(self, (Vec){info.xres, info.yres});
 	}
 	self->buf = mmap(NULL, self->bufsize, PROT_READ|PROT_WRITE, MAP_SHARED,
 		self->fd, 0
 	);
-	if (self->buf == MAP_FALED) {
+	if (self->buf == MAP_FAILED) {
 		self->buf = NULL;
 		return -1;
 	}
@@ -91,14 +92,14 @@ int draw_open(Draw *self, const char *path) {
 	return 0;
 }
 
-void draw_rect(Vec pt1, Vec pt2, uint16_t colour){
+bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
 	Vec pixel;
 
-	pt1 = draw_downscale(pt1);
-	pt2 = draw_downscale(pt2);
+	pt1 = draw_downscale(self, pt1);
+	pt2 = draw_downscale(self, pt2);
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
-		for(pixel.y = pt1.y; pixel.y <= pt2.y, pixel.y++){
-			*buffer_map[draw_getidx(pixel)] = colour;
+		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
+			self->buf[draw_getidx(self, pixel)] = colour;
 		}
 	}
 }

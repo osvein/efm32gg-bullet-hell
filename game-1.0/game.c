@@ -2,14 +2,23 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <linux/fb.h>
-#include <game.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <fcntl.h>
 
 #include "util.h"
 #include "draw.h"
-#include "bullets.h"
+
+typedef struct {
+	Vec pos;
+	Vec velocity;
+} Bullet;
+
+typedef struct {
+	Bullet *active;
+	Bullet *inactive;
+	Bullet *end;
+} Bullets;
 
 typedef struct {
 	int gamepad_fd;
@@ -18,44 +27,98 @@ typedef struct {
 	Bullets bullets;
 } Game;
 
-void game_moveplayer(Game *self) {
+void game_updateplayer(Game *self, unsigned long delta) {
 	// TODO
 }
 
-void game_drawplayer(Game *self) {
-	// TODO
+Bullet *bullets_get(Bullets* self) {
+	if (self->inactive < self->end) {
+		return self->inactive++;
+	}
+	return NULL;
 }
 
-void game_tick(Game *self, unsigned long usdelta) {
-	bullets_update(&self->bullets);
-	game_moveplayer(self);
-	game_drawplayer(self);
-	draw_commitall(&self->draw);
-	draw_blankall(&self->draw);
+void bullets_put(Bullets *self, Bullet *b) {
+	if (b < self->inactive) {
+		*b = *--self->inactive;
+	}
 }
 
 /**
- * Runs the game
- * 
- * @param {int} argc - 
- * @param {char} *argv[] - 
+ * Generates bullets which aim for the player
 */
+void generate_target_bullet(Game *game, short speed) {
+	Bullet *b = bullets_get(&game->bullets);
+	if (!b) return;
+    b->pos = vec_rand(game->draw.size);
+    b->velocity = vec_normalize(vec_add(vec_mul(b->pos, -1), game->player), speed);
+}
+
+/**
+ * Generates bullets in specific patterns
+*/
+void generate_pattern_bullets(int index[]) {
+
+}
+
+/**
+ * Generates bullets with semi-random velocity vectors
+ * Bullets will not be generated if they would move off screen quickly
+*/
+void generate_random_bullets(int index) {
+
+}
+
+/* returns true if bullet is on-screen */
+bool bullet_draw(Bullet *self, Draw *draw) {
+    return draw_rect(draw,
+    	vec_add(self->pos, (Vec){-2000, -2000}),
+    	vec_add(self->pos, (Vec){2000, 2000}),
+    	draw_convcolor(0x0000FF)
+    );
+}
+
+/**
+ * Updates all bullets loaded in game
+*/
+void game_updatebullets(Game *game, unsigned long delta) {
+    for (Bullet *b = game->bullets.active; b < game->bullets.inactive; b++) {
+    	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
+
+		if (!bullet_draw(b, &game->draw)) {
+			bullets_put(&game->bullets, b);
+            //generate_target_bullet(game, 8);
+        }
+    }
+}
+
+void game_tick(Game *self, unsigned long usdelta) {
+	draw_blankall(&self->draw);
+	draw_rect(&self->draw, vec_zero, self->player, draw_convcolor(0xFFFFFF));
+	generate_target_bullet(self, 100);
+	game_updatebullets(self, usdelta);
+	game_updateplayer(self, usdelta);
+	draw_commitall(&self->draw);
+}
+
 int main(int argc, char *argv[]) {
 	Bullet bullet_pool[40];
 	Game game = {
-		.draw = {6, 6}
-		.bullets = {bullet_pool, lenof(bullet_pool)}
+		.player = {5000, 5000},
+		.draw = {6, 6},
+		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)}
 	};
 	struct timespec prevtime;
 
-	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
-	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) {
+	//game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
+	if (/*game.gamepad_fd < 0 ||*/ draw_open(&game.draw, "/dev/fb0") < 0) {
 		perror(*argv);
 		exit(1);
 	}
 	while (1) { // TODO
 		// clock_gettime(CLOCK_REALTIME, ...), regn ut prevtime diff
-		game_tick(&game, delta);
+		game_tick(&game, 1);
+		sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 	}
 
