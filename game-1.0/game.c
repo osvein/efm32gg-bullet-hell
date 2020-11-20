@@ -34,10 +34,10 @@ typedef struct {
 	Bullets bullets;
 } Game;
 
-void player_draw(Vec self, Draw *draw) {
+void player_draw(Vec self, short size Draw *draw) {
 	draw_rect(draw,
-    	vec_add(self, (Vec){-2000, -2000}),
-    	vec_add(self, (Vec){2000, 2000}),
+    	vec_add(self, (Vec){-size, -size}),
+    	vec_add(self, (Vec){size, size}),
     	draw_convcolor(0xFFFFFF)
     );
 }
@@ -47,10 +47,10 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	//if(read(self->gamepad_fd, &input, 1) != 1) return;
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
-	self->player.x = MIN(MAX(self->player.x, 0), self->draw.max.x);
-	self->player.y = MIN(MAX(self->player.y, 0), self->draw.max.y);
+	self->player.x = MIN(MAX(self->player.x, 0+self->player_size), self->draw.max.x-self->player_size);
+	self->player.y = MIN(MAX(self->player.y, 0+self->player_size), self->draw.max.y-self->player_size);
 	//if (is_blank())
-	player_draw(self->player, &self->draw);
+	player_draw(self->player, self->player_size, &self->draw);
 }
 
 Bullet *bullets_get(Bullets* self) {
@@ -94,8 +94,8 @@ void generate_random_bullets(int index) {
 /* returns true if bullet is on-screen */
 bool bullet_draw(Bullet *self, Draw *draw) {
     return draw_rect(draw,
-    	vec_add(self->pos, (Vec){-2000, -2000}),
-    	vec_add(self->pos, (Vec){2000, 2000}),
+    	vec_add(self->pos, (Vec){-10, -10}),
+    	vec_add(self->pos, (Vec){10, 10}),
     	draw_convcolor(0x0000FF)
     );
 }
@@ -127,10 +127,10 @@ void game_tick(Game *self, unsigned long usdelta) {
 int main(int argc, char *argv[]) {
 	Bullet bullet_pool[40];
 	Game game = {
-		.player = {5000, 5000},
-		.player_size = 20,
+		.player = {100, 100},
+		.player_size = 10,
 		.player_speed = 10,
-		.draw = {6, 6},
+		.draw = {0, 0},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)}
 	};
 	struct timespec prevtime;
