@@ -108,7 +108,7 @@ void game_updatebullets(Game *game, unsigned long delta, unsigned long color) {
 	Bullet *b;
     for (b = game->bullets.active; b < game->bullets.inactive; b++) {
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
-		if (!bullet_draw(b, &game->draw)) bulletpool_put(&game->bullets, b);
+		if (!bullet_draw(b, &game->draw, color)) bulletpool_put(&game->bullets, b);
     }
 }
 
