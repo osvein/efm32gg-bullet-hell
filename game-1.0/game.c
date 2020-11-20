@@ -128,7 +128,7 @@ void game_updatebullets(Game *game, unsigned long delta) {
 
 void game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	generate_target_bullet(self, 4);
+//	generate_target_bullet(self, 4);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commitall(&self->draw);
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	while (1) { // TODO
-		// clock_gettime(CLOCK_REALTIME, ...), regn ut prevtime diff
+		// clock_gettime(CLOCK_REALTIME, ...);
 		game_tick(&game, 1);
 		// sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
