@@ -66,18 +66,23 @@ void game_over(void) {
 	exit(0);
 }
 
-void player_draw(Vec self, short size, Draw *draw, unsigned long color) {
+void player_draw(Vec self, short size, Draw *draw) {
 	draw_rect(draw,
     	vec_add(self, (Vec){-size, -size}),
     	vec_add(self, (Vec){size, size}),
-    	color
+    	0xFFFFFF
     );
+    for (int i = 0; i < 40; ++i) {
+		draw_commit(draw,
+			vec_add(self, (Vec){-4, -4}),
+			vec_add(self, (Vec){4, 4})
+		);
+	}
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
 	unsigned char input;
 
-	player_draw(self->player, self->player_size, &self->draw, 0x000000);
 	if (read(self->gamepad_fd, &input, 1) != 1) fatal();
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
@@ -86,7 +91,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	if (!is_blank(
 		vec_add(self->player, (Vec){-self->player_size, -self->player_size}),
 		vec_add(self->player, (Vec){-self->player_size, -self->player_size}))) game_over();
-	player_draw(self->player, self->player_size, &self->draw, 0xFFFFFF);
+	player_draw(self->player, self->player_size, &self->draw);
 }
 
 /**
@@ -100,30 +105,29 @@ void generate_target_bullet(Game *game, short speed) {
 }
 
 /* returns true if bullet is on-screen */
-bool bullet_draw(Bullet *self, Draw *draw, unsigned long color) {
+bool bullet_draw(Bullet *self, Draw *draw) {
     return draw_rect(draw,
     	vec_add(self->pos, (Vec){-10, -10}),
     	vec_add(self->pos, (Vec){10, 10}),
-    	color
+    	0x0000FF
     );
 }
 
 /**
  * Updates all bullets loaded in game
 */
-void game_updatebullets(Game *game, unsigned long delta, unsigned long color) {
+void game_updatebullets(Game *game, unsigned long delta) {
 	Bullet *b;
     for (b = game->bullets.active; b < game->bullets.inactive; b++) {
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
-		if (!bullet_draw(b, &game->draw, color)) bulletpool_put(&game->bullets, b);
+		if (!bullet_draw(b, &game->draw)) bulletpool_put(&game->bullets, b);
     }
 }
 
 void game_tick(Game *self, unsigned long usdelta) {
-//	draw_blankall(&self->draw);
-	generate_target_bullet(self, 4);
-	game_updatebullets(self, 0, 0x000000);
-	game_updatebullets(self, usdelta, 0x0000FF);
+	draw_blankall(&self->draw);
+//	generate_target_bullet(self, 4);
+	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 //	draw_commitall(&self->draw);
 }
