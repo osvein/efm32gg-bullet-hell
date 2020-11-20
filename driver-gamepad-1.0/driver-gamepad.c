@@ -22,7 +22,7 @@ static inline int ptr_to_err(void *ptr) {
 	return IS_ERR(ptr) ? PTR_ERR(ptr) : 0;
 }
 
-static const phys_addr_t gpad_portaddr = 0x4006048;
+static const phys_addr_t gpad_portaddr = 0x40006048;
 static const unsigned long gpad_portsize = 0x24;
 static const unsigned long gpad_portoff_model = 0x04;
 static const unsigned long gpad_portoff_dout = 0x0C;
