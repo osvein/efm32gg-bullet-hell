@@ -44,8 +44,9 @@ static int gpad_open(struct inode *inode, struct file *file)
 static ssize_t gpad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
+	int i;
 	if (count < 1) return 0;
-	for (int i = 0; i < gpad_portsize; i++) {
+	for (i = 0; i < gpad_portsize; i++) {
 		printk(KERN_INFO "gpad port read: %u\n", ioread32(gpad_port + i));
 	}
 	*buf = ioread32(gpad_port + gpad_portoff_din);
@@ -94,6 +95,7 @@ static int __init gpad_init(void)
 {
 	long ret;
 	dev_t devno;
+	int i;
 
 	cdev_init(&gpad_cdev, &gpad_fops);
 	ret = alloc_chrdev_region(&devno, 0, 1, "gamepad");
@@ -116,7 +118,7 @@ static int __init gpad_init(void)
 	if (ret < 0) goto err;
 	iowrite32(0x33333333, gpad_port + gpad_portoff_model);
 	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
-	for (int i = 0; i < gpad_portsize; i++) {
+	for (i = 0; i < gpad_portsize; i++) {
 		printk(KERN_INFO "gpad port: %u\n", ioread32(gpad_port + i));
 	}
 
