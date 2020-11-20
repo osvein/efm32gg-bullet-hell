@@ -108,6 +108,7 @@ static int __init gpad_init(void)
 	long ret;
 	dev_t devno;
 
+	printk(KERN_INFO "initializing");
 	cdev_init(&gpad_cdev, &gpad_fops);
 	ret = alloc_chrdev_region(&devno, 0, 1, "gamepad");
 	if (ret < 0) goto err;
@@ -137,6 +138,7 @@ static int __init gpad_init(void)
 	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
 	clk_disable_unprepare(gpad_gpioclk);
 
+	printk(KERN_INFO "initialized");
 	return 0;
 err:
 	gpad_exit();
