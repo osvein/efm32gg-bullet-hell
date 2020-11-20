@@ -9,6 +9,11 @@
 #include "util.h"
 #include "draw.h"
 
+#define LEFT 1<<0
+#define UP 1<<1
+#define RIGHT 1<<2
+#define DOWN 1<<3
+
 typedef struct {
 	Vec pos;
 	Vec velocity;
@@ -23,12 +28,24 @@ typedef struct {
 typedef struct {
 	int gamepad_fd;
 	Vec player;
+	short player_size;
 	Draw draw;
 	Bullets bullets;
 } Game;
 
 void game_updateplayer(Game *self, unsigned long delta) {
-	// TODO
+	vec direction = {}
+	self->player = vec_add(self->player, INPUT);
+	//if (is_blank())
+	player_draw(self->player, self->draw);
+}
+
+void player_draw(Vec self, Draw *draw) {
+	draw_rect(draw,
+    	vec_add(self, (Vec){-2000, -2000}),
+    	vec_add(self, (Vec){2000, 2000}),
+    	draw_convcolor(0xFFFFFF)
+    );
 }
 
 Bullet *bullets_get(Bullets* self) {
