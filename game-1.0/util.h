@@ -1,3 +1,5 @@
+#include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define MIN(a, b) ((a)<(b)?(a):(b))
@@ -12,7 +14,7 @@ static const Vec vec_zero = {0, 0};
 /* returns integer square root of x, capped at 2^bits
  * fast, gcc tends to unroll with constant bits at -O3
  */
-static inline unsigned isqrt(unsigned x, unsigned bits) {
+static inline unsigned long isqrt(unsigned long x, unsigned bits) {
 	unsigned y = 0;
 
 	while (bits-- > 0) {
@@ -27,8 +29,8 @@ static inline unsigned isqrt(unsigned x, unsigned bits) {
 }
 
 /* returns the absolute value (length) of vector v */
-static inline unsigned short vec_abs(Vec v) {
-	return isqrt(v.x * v.x + v.y * v.y, 16);
+static inline short vec_abs(Vec v) {
+	return isqrt(v.x * v.x + v.y * v.y, 15);
 }
 
 /* returns the sum of two vectors */
@@ -43,9 +45,16 @@ static inline Vec vec_mul(Vec v, short factor) {
 
 /* returns a vector with same angle as direction, and specified magnitude */
 static inline Vec vec_normalize(Vec direction, short magnitude) {
-	return vec_mul(direction, magnitude / vec_abs(direction));
+	short div = vec_abs(direction);
+
+	/* can't use vec_mul due to overflow */
+	return (Vec){((long)v.x * magnitude) / div, ((long)v.y * magnitude) / div};
 }
 
-static inline Vec vec_rand(Vec max) {
-	return (Vec){rand() % max.x, rand() % max.y};
+/* returns a random vector inside a rectangle using rand() */
+static inline Vec vec_rand(Vec min, Vec max) {
+	return (Vec){
+		rand() % ((long)max.x + 1) + min.x,
+		rand() % ((long)max.y + 1) + min.y
+	};
 }

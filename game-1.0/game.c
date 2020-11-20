@@ -67,7 +67,7 @@ void bullets_put(Bullets *self, Bullet *b) {
 void generate_target_bullet(Game *game, short speed) {
 	Bullet *b = bullets_get(&game->bullets);
 	if (!b) return;
-    b->pos = vec_rand(game->draw.size);
+    b->pos = vec_rand(vec_zero, game->draw.size);
     b->velocity = vec_normalize(vec_add(vec_mul(b->pos, -1), game->player), speed);
 }
 
