@@ -1,5 +1,5 @@
 #include <linux/cdev.h>
-#include <linux/clk.h>
+//#include <linux/clk.h>
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/init.h>
@@ -32,7 +32,7 @@ static const unsigned long gpad_portoff_din = 0x1C;
 static struct class *gpad_class;
 static struct device *gpad_dev;
 static void __iomem *gpad_port;
-static struct clk *gpad_gpioclk;
+//static struct clk *gpad_gpioclk;
 static struct cdev gpad_cdev = {
 	.owner = THIS_MODULE
 };
@@ -45,12 +45,13 @@ static int gpad_open(struct inode *inode, struct file *file)
 	 * every open/release call, and the clock will be automatically disabled
 	 * when there are no open file references
 	 */
-	return clk_prepare_enable(gpad_gpioclk);
+//	return clk_prepare_enable(gpad_gpioclk);
+	return 0;
 }
 
 static int gpad_release(struct inode *inode, struct file *file)
 {
-	clk_disable_unprepare(gpad_gpioclk);
+//	clk_disable_unprepare(gpad_gpioclk);
 	return 0;
 }
 
@@ -94,7 +95,7 @@ static void gpad_exit(void)
 	// TODO can me assume that release has been called on all open files?
 	devno = gpad_cdev.dev;
 	count = gpad_cdev.count;
-	if (gpad_gpioclk) clk_put(gpad_gpioclk);
+//	if (gpad_gpioclk) clk_put(gpad_gpioclk);
 	if (gpad_class) {
 		device_destroy(gpad_class, devno);
 		class_destroy(gpad_class);
@@ -108,43 +109,35 @@ static int __init gpad_init(void)
 	long ret;
 	dev_t devno;
 
-	printk(KERN_INFO "1");
 	cdev_init(&gpad_cdev, &gpad_fops);
 	ret = alloc_chrdev_region(&devno, 0, 1, "gamepad");
 	if (ret < 0) goto err;
-	printk(KERN_INFO "2");
 	ret = cdev_add(&gpad_cdev, devno, 1);
 	if (ret < 0) goto err;
-	printk(KERN_INFO "3");
 	ret = ptr_to_err(gpad_class = class_create(THIS_MODULE, "gamepad"));
 	if (ret < 0) goto err;
-	printk(KERN_INFO "4");
 	ret = ptr_to_err(
 		gpad_dev = device_create(gpad_class, NULL, devno, NULL, "gamepad")
 	);
 	if (ret < 0) goto err;
-	printk(KERN_INFO "5");
 	ret = null_to_err(-EBUSY, devm_request_mem_region(gpad_dev,
 		gpad_portaddr, gpad_portsize, "gamepad_port"
 	));
 	if (ret < 0) goto err;
-	printk(KERN_INFO "6");
 	ret = null_to_err(-ENOMEM,
 		gpad_port = devm_ioremap(gpad_dev, gpad_portaddr, gpad_portsize)
 	);
 	if (ret < 0) goto err;
-	printk(KERN_INFO "7");
-	ret = ptr_to_err(gpad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO"));
-	if (ret < 0) goto err;
-	printk(KERN_INFO "8");
+//	ret = ptr_to_err(gpad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO"));
+//	if (ret < 0) goto err;
+//	printk(KERN_INFO "8");
 
-	// TODO is it really necessary to enable the clock to write registers?
-	ret = clk_prepare_enable(gpad_gpioclk);
-	if (ret < 0) goto err;
-	printk(KERN_INFO "9");
+//	// TODO is it really necessary to enable the clock to write registers?
+//	ret = clk_prepare_enable(gpad_gpioclk);
+//	if (ret < 0) goto err;
 	iowrite32(0x33333333, gpad_port + gpad_portoff_model);
 	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
-	clk_disable_unprepare(gpad_gpioclk);
+//	clk_disable_unprepare(gpad_gpioclk);
 
 	printk(KERN_INFO "initialized");
 	return 0;
