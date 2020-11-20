@@ -44,13 +44,13 @@ void player_draw(Vec self, Draw *draw) {
 
 void game_updateplayer(Game *self, unsigned long delta) {
 	unsigned char input;
-	if(read(self->gamepad_fd, &input) != 1) fatal();
+	if(read(self->gamepad_fd, &input) != 1) return;
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
 	self->player.x = MIN(MAX(self->player.x, 0), self->draw.max.x);
 	self->player.y = MIN(MAX(self->player.y, 0), self->draw.max.y);
 	//if (is_blank())
-	player_draw(self->player, self->draw);
+	player_draw(self->player, &self->draw);
 }
 
 Bullet *bullets_get(Bullets* self) {
