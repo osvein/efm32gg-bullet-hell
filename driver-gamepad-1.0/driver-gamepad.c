@@ -58,11 +58,8 @@ static int gpad_release(struct inode *inode, struct file *file)
 static ssize_t gpad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
-	printk(KERN_INFO "read 1");
 	if (count < 1) return 0;
-	printk(KERN_INFO "read 2");
 	*buf = ioread32(gpad_port + gpad_portoff_din);
-	printk(KERN_INFO "read 3");
 	return 1;
 }
 
@@ -133,6 +130,7 @@ static int __init gpad_init(void)
 	if (ret < 0) goto err;
 //	ret = ptr_to_err(gpad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO"));
 //	if (ret < 0) goto err;
+//	printk(KERN_INFO "8");
 
 //	// TODO is it really necessary to enable the clock to write registers?
 //	ret = clk_prepare_enable(gpad_gpioclk);
