@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 		.draw = {0, 0},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)}
 	};
-	struct timespec prevtime;
+//	struct timespec prevtime;
 
 	argv0 = *argv;
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
