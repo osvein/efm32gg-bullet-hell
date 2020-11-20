@@ -34,6 +34,14 @@ typedef struct {
 	Bullets bullets;
 } Game;
 
+void player_draw(Vec self, Draw *draw) {
+	draw_rect(draw,
+    	vec_add(self, (Vec){-2000, -2000}),
+    	vec_add(self, (Vec){2000, 2000}),
+    	draw_convcolor(0xFFFFFF)
+    );
+}
+
 void game_updateplayer(Game *self, unsigned long delta) {
 	unsigned char input;
 	if(read(self->gamepad_fd, &input) != 1) fatal();
@@ -43,14 +51,6 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	self->player.y = MIN(MAX(self->player.y, 0), self->draw.max.y);
 	//if (is_blank())
 	player_draw(self->player, self->draw);
-}
-
-void player_draw(Vec self, Draw *draw) {
-	draw_rect(draw,
-    	vec_add(self, (Vec){-2000, -2000}),
-    	vec_add(self, (Vec){2000, 2000}),
-    	draw_convcolor(0xFFFFFF)
-    );
 }
 
 Bullet *bullets_get(Bullets* self) {
@@ -104,7 +104,8 @@ bool bullet_draw(Bullet *self, Draw *draw) {
  * Updates all bullets loaded in game
 */
 void game_updatebullets(Game *game, unsigned long delta) {
-    for (Bullet *b = game->bullets.active; b < game->bullets.inactive; b++) {
+	Bullet *b;
+    for (b = game->bullets.active; b < game->bullets.inactive; b++) {
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
 
 		if (!bullet_draw(b, &game->draw)) {
@@ -127,8 +128,8 @@ int main(int argc, char *argv[]) {
 	Bullet bullet_pool[40];
 	Game game = {
 		.player = {5000, 5000},
-		.player_size = 20;
-		.player_speed = 10;
+		.player_size = 20,
+		.player_speed = 10,
 		.draw = {6, 6},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)}
 	};

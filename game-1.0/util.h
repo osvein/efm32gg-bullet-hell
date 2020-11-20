@@ -43,9 +43,9 @@ static inline Vec vec_mul(Vec v, short factor) {
 	return (Vec){v.x * factor, v.y * factor};
 }
 
-/* returns a vector with same angle as direction, and specified magnitude */
-static inline Vec vec_normalize(Vec direction, short magnitude) {
-	short div = vec_abs(direction);
+/* returns a vector with same angle as v, and specified magnitude */
+static inline Vec vec_normalize(Vec v, short magnitude) {
+	short div = vec_abs(v);
 
 	/* can't use vec_mul due to overflow */
 	return (Vec){((long)v.x * magnitude) / div, ((long)v.y * magnitude) / div};
