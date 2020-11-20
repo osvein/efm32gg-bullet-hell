@@ -9,153 +9,142 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
-/* TODO remember to write in report about gpio subsystem */
+// TODO write in report about:
+// * common clock framework (energy saving)
+// * gpio subsystem (user space API)
 
-static const phys_addr_t gamepad_portaddr = 0x4006048;
-static const unsigned long gamepad_portsize = 0x24;
-static const unsigned long gamepad_portoff_model = 0x04;
-static const unsigned long gamepad_portoff_dout = 0x0C;
-static const unsigned long gamepad_portoff_din = 0x1C;
+/* returns err if ptr is null, 0 otherwise */
+static inline int null_to_err(int err, void *ptr) {
+	return ptr ? 0 : err;
+}
 
-static struct class *gamepad_class;
-static struct device *gamepad_dev;
-static void __iomem *gamepad_port;
-static struct clk *gamepad_gpioclk;
-static struct cdev gamepad_cdev = {
+/* returns error contained in ptr, or 0 if no error */
+static inline int ptr_to_err(void *ptr) {
+	return IS_ERR(ptr) ? PTR_ERR(ptr) : 0;
+}
+
+static const phys_addr_t gpad_portaddr = 0x4006048;
+static const unsigned long gpad_portsize = 0x24;
+static const unsigned long gpad_portoff_model = 0x04;
+static const unsigned long gpad_portoff_dout = 0x0C;
+static const unsigned long gpad_portoff_din = 0x1C;
+
+static struct class *gpad_class;
+static struct device *gpad_dev;
+static void __iomem *gpad_port;
+static struct clk *gpad_gpioclk;
+static struct cdev gpad_cdev = {
 	.owner = THIS_MODULE
 };
 
-/**
- * Opens the gamepad
- * 
- * @param {struct inode} *inode - 
- * @param {struct file} *file - 
- * 
- * @returns {???} - 
-*/
-static int gamepad_open(struct inode *inode, struct file *file)
+static int gpad_open(struct inode *inode, struct file *file)
 {
 	if ((file->f_flags & O_ACCMODE) != O_RDONLY) return -EACCES;
+
+	/* the clock framework refcounts internally, so we call enable/disable for
+	 * every open/release call, and the clock will be automatically disabled
+	 * when there are no open file references
+	 */
+	return clk_prepare_enable(gpad_gpioclk);
+}
+
+static int gpad_release(struct inode *inode, struct file *file)
+{
+	clk_unprepare_disable(gpad_gpioclk);
 	return 0;
 }
 
-/**
- * Read the input from the gamepad
- * 
- * @param {struct file} *file - the location of the file to write the input to
- * @param {char ???}
- * @param {size_t} count - 
- * @param {loff_t} *off - 
- * 
- * @return {int} - 
-*/
-static ssize_t gamepad_read(struct file *file, char __user *buf, size_t count,
+static ssize_t gpad_read(struct file *file, char __user *buf, size_t count,
 	loff_t *off
 ) {
 	if (count < 1) return 0;
-	*buf = ioread32(gamepad_port + gamepad_portoff_din);
+	*buf = ioread32(gpad_port + gpad_portoff_din);
 	return 1;
 }
 
-/*static int gamepad_mmap(struct file *file, struct vm_area_struct *vma)
+/*static int gpad_mmap(struct file *file, struct vm_area_struct *vma)
 {
-	vma->vm_ops = &gamepad_vmops;
+	vma->vm_ops = &gpad_vmops;
 	return 0;
 }
 
-static struct vm_operations_struct gamepad_vmops = {
-	.open = gamepad_vmopen,
-	.close = gamepad_vmclose,
-	.fault = gamepad_vmfault,
+static struct vm_operations_struct gpad_vmops = {
+	.open = gpad_vmopen,
+	.close = gpad_vmclose,
+	.fault = gpad_vmfault,
 };*/
 
-/**
- * Registers the functions so that the kernel knows how they are invoked
-*/
-static struct file_operations gamepad_fops = {
+static struct file_operations gpad_fops = {
 	.owner = THIS_MODULE,
-	.open = gamepad_open,
-	.read = gamepad_read,
-//	.mmap = gamepad_mmap,
+	.open = gpad_open,
+	.release = gpad_release,
+	.read = gpad_read,
+//	.mmap = gpad_mmap,
 };
 
-/**
- * Closes the gamepad and removes it from the device
-*/
-static void gamepad_exit(void)
+/* no __exit attribute because it is called by gpad_init on failure,
+ * therefore it must also not make any assumptions about which parts of init
+ * have been run (e.g. check null pointers)
+ */
+static void gpad_exit(void)
 {
 	dev_t devno;
 	unsigned count;
 
-	devno = gamepad_cdev.dev;
-	count = gamepad_cdev.count;
-	if (gamepad_gpioclk) {
-		clk_disable(gamepad_gpioclk);
-		clk_put(gamepad_gpioclk);
+	// TODO can me assume that release has been called on all open files?
+	devno = gpad_cdev.dev;
+	count = gpad_cdev.count;
+	if (gpad_gpioclk) clk_put(gpad_gpioclk);
+	if (gpad_class) {
+		device_destroy(gpad_class, devno);
+		class_destroy(gpad_class);
 	}
-	if (gamepad_class) {
-		device_destroy(gamepad_class, devno);
-		class_destroy(gamepad_class);
-	}
-	cdev_del(&gamepad_cdev);
+	cdev_del(&gpad_cdev);
 	if (count) unregister_chrdev_region(devno, count);
 }
 
-/**
- * Initializes the gamepad
- * 
- * @returns {} - 
-*/
-static int __init gamepad_init(void)
+static int __init gpad_init(void)
 {
 	long ret;
 	dev_t devno;
 
-	cdev_init(&gamepad_cdev, &gamepad_fops);
+	cdev_init(&gpad_cdev, &gpad_fops);
 	ret = alloc_chrdev_region(&devno, 0, 1, "gamepad");
 	if (ret < 0) goto err;
-	ret = cdev_add(&gamepad_cdev, devno, 1);
+	ret = cdev_add(&gpad_cdev, devno, 1);
 	if (ret < 0) goto err;
-	gamepad_class = class_create(THIS_MODULE, "gamepad");
-	if (IS_ERR(gamepad_class)) {
-		ret = PTR_ERR(gamepad_class);
-		goto err;
-	}
-	gamepad_dev = device_create(gamepad_class, NULL, devno, NULL, "gamepad");
-	if (IS_ERR(gamepad_dev)) {
-		ret = PTR_ERR(gamepad_dev);
-		goto err;
-	}
-
-	if (!devm_request_mem_region(gamepad_dev, gamepad_portaddr,
-		gamepad_portsize, "gamepad_port"
-	)) {
-		ret = -EBUSY;
-		goto err;
-	}
-	gamepad_port = devm_ioremap(gamepad_dev, gamepad_portaddr, gamepad_portsize);
-	if (!gamepad_port) {
-		ret = -ENOMEM;
-		goto err;
-	}
-
-	gamepad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO");
-	if (IS_ERR(gamepad_gpioclk)) {
-		ret = PTR_ERR(gamepad_gpioclk);
-		goto err;
-	}
-	ret = clk_enable(gamepad_gpioclk);
+	ret = ptr_to_err(gpad_class = class_create(THIS_MODULE, "gamepad"));
 	if (ret < 0) goto err;
-	iowrite32(0x33333333, gamepad_port + gamepad_portoff_model);
-	iowrite32(0xFF, gamepad_port + gamepad_portoff_dout);
+	ret = ptr_to_err(
+		gpad_dev = device_create(gpad_class, NULL, devno, NULL, "gamepad")
+	);
+	if (ret < 0) goto err;
+	ret = null_to_err(-EBUSY, devm_request_mem_region(gpad_dev,
+		gpad_portaddr, gpad_portsize, "gamepad_port"
+	));
+	if (ret < 0) goto err;
+	ret = null_to_err(-ENOMEM,
+		gpad_port = devm_ioremap(gpad_dev, gpad_portaddr, gpad_portsize)
+	);
+	if (ret < 0) goto err;
+	ret = ptr_to_err(gpad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO"));
+	if (ret < 0) goto err;
+
+	// TODO is it really necessary to enable the clock to write registers?
+	ret = clk_prepare_enable(gpad_gpioclk);
+	if (ret < 0) goto err;
+	iowrite32(0x33333333, gpad_port + gpad_portoff_model);
+	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
+	clk_disable_unprepare(gpad_gpioclk);
+
 	return 0;
 err:
-	gamepad_exit();
+	gpad_exit();
 	return ret;
 }
 
-module_init(gamepad_init);
-module_exit(gamepad_exit);
+module_init(gpad_init);
+module_exit(gpad_exit);
 
 MODULE_DESCRIPTION("TDT4258 gamepad driver.");
 MODULE_LICENSE("GPL");
