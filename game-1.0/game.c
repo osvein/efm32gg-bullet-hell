@@ -34,7 +34,7 @@ typedef struct {
 	Bullets bullets;
 } Game;
 
-void player_draw(Vec self, short size Draw *draw) {
+void player_draw(Vec self, short size, Draw *draw) {
 	draw_rect(draw,
     	vec_add(self, (Vec){-size, -size}),
     	vec_add(self, (Vec){size, size}),
