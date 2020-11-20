@@ -117,5 +117,6 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
+	draw_commit(self, pt1, pt2);
 	return(true);
 }
