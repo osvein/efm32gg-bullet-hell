@@ -29,16 +29,18 @@ typedef struct {
 	int gamepad_fd;
 	Vec player;
 	short player_size;
+	short player_speed;
 	Draw draw;
 	Bullets bullets;
 } Game;
 
 void game_updateplayer(Game *self, unsigned long delta) {
-	char input = 0;
+	unsigned char input;
+	if(read(self->gamepad_fd, &input) != 1) fatal();
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
-	self->player = vec_add(self->player, movement);
-	self->player.x = MAX(self->player.x, 0)
-	self->player.y = MIN(self->player.x, )
+	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
+	self->player.x = MIN(MAX(self->player.x, 0), self->draw.max.x)
+	self->player.y = MIN(MAX(self->player.y, 0), self->draw.max.y)
 	//if (is_blank())
 	player_draw(self->player, self->draw);
 }
@@ -125,6 +127,8 @@ int main(int argc, char *argv[]) {
 	Bullet bullet_pool[40];
 	Game game = {
 		.player = {5000, 5000},
+		.player_size = 20;
+		.player_speed = 10;
 		.draw = {6, 6},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)}
 	};

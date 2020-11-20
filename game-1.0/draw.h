@@ -4,7 +4,7 @@
 typedef struct {
 	unsigned char subwidth, subheight; /* log2(subpixels per pixel) */
 	int fd;
-	Vec size; /* display size in subpixels */
+	Vec max; /* display size in subpixels */
 	size_t stride; /* bytes per line */
 	size_t bufsize;
 	uint16_t *buf;
