@@ -9,42 +9,70 @@
 #include "util.h"
 #include "draw.h"
 
-#define LEFT 1<<0
-#define UP 1<<1
-#define RIGHT 1<<2
-#define DOWN 1<<3
+enum {
+	LEFT = 1<<0,
+	UP = 1<<1,
+	RIGHT = 1<<2,
+	DOWN = 1<<3,
+};
 
 typedef struct {
 	Vec pos;
 	Vec velocity;
+	short radius;
 } Bullet;
 
+/* pool of bullet objects. the pool in divided in two, the first part are
+ * allocated objects, the last part are free objects
+ */
 typedef struct {
-	Bullet *active;
-	Bullet *inactive;
-	Bullet *end;
-} Bullets;
+	Bullet *active; /* points to the first bullet in the pool */
+	Bullet *inactive; /* points to the first inactive bullet in the pool */
+	Bullet *end; /* points one beyond the last bullet in the pool */
+} BulletPool;
 
+/* the complete self-contained state of the game */
 typedef struct {
 	int gamepad_fd;
 	Vec player;
 	short player_size;
 	short player_speed;
 	Draw draw;
-	Bullets bullets;
+	BulletPool bullets;
 } Game;
+
+char *argv0;
+
+void fatal(void) {
+	perror(argv0);
+	exit(1);
+}
+
+Bullet *bulletpool_get(BulletPool* self) {
+	if (self->inactive < self->end) {
+		return self->inactive++;
+	}
+	return NULL;
+}
+
+void bulletpool_put(BulletPool *self, Bullet *b) {
+	if (b < self->inactive) {
+		*b = *--self->inactive;
+	}
+}
 
 void player_draw(Vec self, short size, Draw *draw) {
 	draw_rect(draw,
     	vec_add(self, (Vec){-size, -size}),
     	vec_add(self, (Vec){size, size}),
-    	draw_convcolor(0xFFFFFF)
+    	0xFFFFFF
     );
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
-	unsigned char input = 12;
-	//if(read(self->gamepad_fd, &input, 1) != 1) return;
+	unsigned char input;
+
+	if (read(self->gamepad_fd, &input, 1) != 1) fatal();
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
 	self->player.x = MIN(MAX(self->player.x, 0+self->player_size), self->draw.max.x-self->player_size);
@@ -53,24 +81,11 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	player_draw(self->player, self->player_size, &self->draw);
 }
 
-Bullet *bullets_get(Bullets* self) {
-	if (self->inactive < self->end) {
-		return self->inactive++;
-	}
-	return NULL;
-}
-
-void bullets_put(Bullets *self, Bullet *b) {
-	if (b < self->inactive) {
-		*b = *--self->inactive;
-	}
-}
-
 /**
  * Generates bullets which aim for the player
 */
 void generate_target_bullet(Game *game, short speed) {
-	Bullet *b = bullets_get(&game->bullets);
+	Bullet *b = bulletpool_get(&game->bullets);
 	if (!b) return;
     b->pos = vec_rand(vec_zero, game->draw.max);
     b->velocity = vec_normalize(vec_add(vec_mul(b->pos, -1), game->player), speed);
@@ -96,7 +111,7 @@ bool bullet_draw(Bullet *self, Draw *draw) {
     return draw_rect(draw,
     	vec_add(self->pos, (Vec){-10, -10}),
     	vec_add(self->pos, (Vec){10, 10}),
-    	draw_convcolor(0x0000FF)
+    	0x0000FF
     );
 }
 
@@ -107,18 +122,13 @@ void game_updatebullets(Game *game, unsigned long delta) {
 	Bullet *b;
     for (b = game->bullets.active; b < game->bullets.inactive; b++) {
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
-
-		if (!bullet_draw(b, &game->draw)) {
-			bullets_put(&game->bullets, b);
-            //generate_target_bullet(game, 8);
-        }
+		if (!bullet_draw(b, &game->draw)) bulletpool_put(&game->bullets, b);
     }
 }
 
 void game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	draw_rect(&self->draw, vec_zero, self->player, draw_convcolor(0xFFFFFF));
-	generate_target_bullet(self, 100);
+	generate_target_bullet(self, 4);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commitall(&self->draw);
@@ -135,11 +145,9 @@ int main(int argc, char *argv[]) {
 	};
 	struct timespec prevtime;
 
-	//game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
-	if (/*game.gamepad_fd < 0 ||*/ draw_open(&game.draw, "/dev/fb0") < 0) {
-		perror(*argv);
-		exit(1);
-	}
+	argv0 = *argv;
+	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
+	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	while (1) { // TODO
 		// clock_gettime(CLOCK_REALTIME, ...), regn ut prevtime diff
 		game_tick(&game, 1);

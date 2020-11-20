@@ -100,8 +100,10 @@ int draw_open(Draw *self, const char *path) {
 	return 0;
 }
 
-bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
+bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	Vec pixel;
+	uint16_t c = draw_convcolor(color);
+
 	pt1.x = MAX(pt1.x, 0);
 	pt1.y = MAX(pt1.y, 0);
 	pt2.x = MIN(pt2.x, (self->max.x));
@@ -112,7 +114,7 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
 	pt2 = draw_downscale(self, pt2);
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
 		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
-			self->buf[draw_getidx(self, pixel)] = colour;
+			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
 	return(true);
