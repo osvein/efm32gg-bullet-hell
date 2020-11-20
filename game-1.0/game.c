@@ -43,8 +43,8 @@ void player_draw(Vec self, Draw *draw) {
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
-	unsigned char input;
-	if(read(self->gamepad_fd, &input, 1) != 1) return;
+	unsigned char input = 12;
+	//if(read(self->gamepad_fd, &input, 1) != 1) return;
 	Vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
 	self->player.x = MIN(MAX(self->player.x, 0), self->draw.max.x);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
 	while (1) { // TODO
 		// clock_gettime(CLOCK_REALTIME, ...), regn ut prevtime diff
 		game_tick(&game, 1);
-		sleep(1);
+		// sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 	}
 
