@@ -67,6 +67,10 @@ void player_draw(Vec self, short size, Draw *draw) {
     	vec_add(self, (Vec){size, size}),
     	0xFFFFFF
     );
+    draw_commit(draw,
+    	vec_add(self, (Vec){-size, -size}),
+    	vec_add(self, (Vec){size, size})
+    );
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
@@ -89,21 +93,6 @@ void generate_target_bullet(Game *game, short speed) {
 	if (!b) return;
     b->pos = vec_rand(vec_zero, game->draw.max);
     b->velocity = vec_normalize(vec_add(vec_mul(b->pos, -1), game->player), speed);
-}
-
-/**
- * Generates bullets in specific patterns
-*/
-void generate_pattern_bullets(int index[]) {
-
-}
-
-/**
- * Generates bullets with semi-random velocity vectors
- * Bullets will not be generated if they would move off screen quickly
-*/
-void generate_random_bullets(int index) {
-
 }
 
 /* returns true if bullet is on-screen */
@@ -131,7 +120,7 @@ void game_tick(Game *self, unsigned long usdelta) {
 //	generate_target_bullet(self, 4);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
-	draw_commitall(&self->draw);
+//	draw_commitall(&self->draw);
 }
 
 int main(int argc, char *argv[]) {
