@@ -50,7 +50,7 @@ static int gpad_open(struct inode *inode, struct file *file)
 
 static int gpad_release(struct inode *inode, struct file *file)
 {
-	clk_unprepare_disable(gpad_gpioclk);
+	clk_disable_unprepare(gpad_gpioclk);
 	return 0;
 }
 
