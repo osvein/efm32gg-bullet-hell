@@ -96,9 +96,9 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
 	Vec pixel;
 	pt1.x = MAX(pt1.x, 0);
 	pt1.y = MAX(pt1.y, 0);
-	pt2.x = MIN(pt2.x, self->size.x);
-	pt2.y = MIN(pt2.y, self->size.y);
-	if(pt1.x > pt2.x || pt1.y > pt2.y) return(0);
+	pt2.x = MIN(pt2.x, (self->size.x)-1);
+	pt2.y = MIN(pt2.y, (self->size.y)-1);
+	if(pt1.x > pt2.x || pt1.y > pt2.y) return(false);
 
 	pt1 = draw_downscale(self, pt1);
 	pt2 = draw_downscale(self, pt2);
@@ -107,5 +107,5 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
 			self->buf[draw_getidx(self, pixel)] = colour;
 		}
 	}
-	return(1);
+	return(true);
 }
