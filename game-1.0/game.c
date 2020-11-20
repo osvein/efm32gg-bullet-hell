@@ -67,10 +67,12 @@ void player_draw(Vec self, short size, Draw *draw) {
     	vec_add(self, (Vec){size, size}),
     	0xFFFFFF
     );
-//  draw_commit(draw,
-//    	vec_add(self, (Vec){-size, -size}),
-//    	vec_add(self, (Vec){size, size})
-//    );
+    for (int i = 0; i < 40; ++i) {
+		draw_commit(draw,
+			vec_add(self, (Vec){-4, -4}),
+			vec_add(self, (Vec){4, 4})
+		);
+	}
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
@@ -120,7 +122,7 @@ void game_tick(Game *self, unsigned long usdelta) {
 //	generate_target_bullet(self, 4);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
-	draw_commitall(&self->draw);
+//	draw_commitall(&self->draw);
 }
 
 int main(int argc, char *argv[]) {
