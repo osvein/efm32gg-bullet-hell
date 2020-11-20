@@ -108,32 +108,40 @@ static int __init gpad_init(void)
 	long ret;
 	dev_t devno;
 
-	printk(KERN_INFO "initializing");
+	printk(KERN_INFO "1");
 	cdev_init(&gpad_cdev, &gpad_fops);
 	ret = alloc_chrdev_region(&devno, 0, 1, "gamepad");
 	if (ret < 0) goto err;
+	printk(KERN_INFO "2");
 	ret = cdev_add(&gpad_cdev, devno, 1);
 	if (ret < 0) goto err;
+	printk(KERN_INFO "3");
 	ret = ptr_to_err(gpad_class = class_create(THIS_MODULE, "gamepad"));
 	if (ret < 0) goto err;
+	printk(KERN_INFO "4");
 	ret = ptr_to_err(
 		gpad_dev = device_create(gpad_class, NULL, devno, NULL, "gamepad")
 	);
 	if (ret < 0) goto err;
+	printk(KERN_INFO "5");
 	ret = null_to_err(-EBUSY, devm_request_mem_region(gpad_dev,
 		gpad_portaddr, gpad_portsize, "gamepad_port"
 	));
 	if (ret < 0) goto err;
+	printk(KERN_INFO "6");
 	ret = null_to_err(-ENOMEM,
 		gpad_port = devm_ioremap(gpad_dev, gpad_portaddr, gpad_portsize)
 	);
 	if (ret < 0) goto err;
+	printk(KERN_INFO "7");
 	ret = ptr_to_err(gpad_gpioclk = clk_get(NULL, "HFPERCLK.GPIO"));
 	if (ret < 0) goto err;
+	printk(KERN_INFO "8");
 
 	// TODO is it really necessary to enable the clock to write registers?
 	ret = clk_prepare_enable(gpad_gpioclk);
 	if (ret < 0) goto err;
+	printk(KERN_INFO "9");
 	iowrite32(0x33333333, gpad_port + gpad_portoff_model);
 	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
 	clk_disable_unprepare(gpad_gpioclk);
