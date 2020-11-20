@@ -35,7 +35,7 @@ typedef struct {
 
 void game_updateplayer(Game *self, unsigned long delta) {
 	char input = 0;
-	vec direction = {!(input&&RIGHT)-!(input&&LEFT)};
+	vec direction = {!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)};
 	self->player = vec_add(self->player, movement);
 	//if (is_blank())
 	player_draw(self->player, self->draw);
