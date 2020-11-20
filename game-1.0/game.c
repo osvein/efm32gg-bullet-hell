@@ -61,6 +61,11 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 	}
 }
 
+void game_over(void) {
+	printf("Game Over");
+	exit(0);
+}
+
 void player_draw(Vec self, short size, Draw *draw, unsigned long color) {
 	draw_rect(draw,
     	vec_add(self, (Vec){-size, -size}),
@@ -78,7 +83,9 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	self->player = vec_add(self->player, vec_normalize(direction, self->player_speed*delta));
 	self->player.x = MIN(MAX(self->player.x, 0+self->player_size), self->draw.max.x-self->player_size);
 	self->player.y = MIN(MAX(self->player.y, 0+self->player_size), self->draw.max.y-self->player_size);
-	//if (is_blank())
+	if (!is_blank(
+		vec_add(self->player, (Vec){-self->player_size, -self->player_size}),
+		vec_add(self->player, (Vec){-self->player_size, -self->player_size}))) game_over();
 	player_draw(self->player, self->player_size, &self->draw, 0xFFFFFF);
 }
 
