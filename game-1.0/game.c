@@ -130,7 +130,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
  * Generates bullets which aim for the player
 */
 void game_gen_target_bullet(Game *self, short speed) {
-	if (self->bullets.end - self->bullets.inactive < 8) return;
+	if (self->bullets.end - self->bullets.inactive < 9) return;
 	Vec pos = legal_vec_rand(&self->player, vec_zero, self->draw.max);
 	if (pos.x == -1) return;
 	Bullet *b = bulletpool_get(&self->bullets);
@@ -145,7 +145,7 @@ void game_gen_target_bullet(Game *self, short speed) {
  * Generates bullets in a pattern
 */
 void game_gen_pattern_bullets(Game *self, short speed) {
-	if (self->bullets.end - self->bullets.inactive < 9) return;
+	if (self->bullets.end - self->bullets.inactive < 8) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
 	Vec border = vec_scale(self->draw.max, 1, 8);
 	Vec pos = legal_vec_rand(&self->player, border, vec_add(self->draw.max, vec_neg(border)));
@@ -174,8 +174,8 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 bool game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	game_gen_pattern_bullets(self, 2);
 	game_gen_target_bullet(self, 2);
+	game_gen_pattern_bullets(self, 2);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
