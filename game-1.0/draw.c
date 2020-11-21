@@ -48,11 +48,8 @@ void draw_blankall(Draw *self) {
 }
 
 void draw_commit(Draw *self) {
-//	ioctl(self->fd, 0x4680, &(struct fb_copyarea){
-//		.dx = 0, .dy = 0, .width = 320, .height = 240
-//	});
-	while (self->dirtylist_len-- > 0) {
-		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
+	while (self->dirtylist_len > 0) {
+		ioctl(self->fd, 0x4680, &self->dirtylist[--self->dirtylist_len]);
 	}
 }
 
@@ -75,7 +72,10 @@ int draw_map(Draw *self) {
 	{
 		struct fb_var_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_VSCREENINFO, &info) < 0) return -1;
-		self->max = vec_add(draw_upscale(self, (Vec){info.xres, info.yres}), (Vec){-1, -1});
+		self->max = vec_add(
+			draw_upscale(self, (Vec){info.xres, info.yres-1}),
+			(Vec){-1, -1}
+		);
 	}
 	self->buf = mmap(NULL, self->bufsize, PROT_READ|PROT_WRITE, MAP_SHARED,
 		self->fd, 0
@@ -124,7 +124,7 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	if (self->dirtylist_len >= self->dirtylist_cap) return false;
 	self->dirtylist[self->dirtylist_len++] = (struct fb_copyarea){
 		.dx = pt1.x, .width = pt2.x-pt1.x+1,
-		.dy = pt1.y, .height = pt2.y-pt1.y+1
+		.dy = pt1.y, .height = pt2.y-pt1.y+2 // TODO
 	};
 	if (color & DRAW_DIRTYONLY) return true;
 
@@ -133,5 +133,6 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
+	//ioctl(self->fd, 0x4680, self->dirtylist);
 	return true;
 }

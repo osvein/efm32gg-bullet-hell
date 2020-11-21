@@ -59,8 +59,8 @@ void fatal(void) {
 /* returns true if bullet is on-screen */
 bool bullet_draw(Bullet *self, Draw *draw, unsigned long color) {
     return draw_rect(draw,
-    	vec_add(self->pos, (Vec){-10, -10}),
-    	vec_add(self->pos, (Vec){10, 10}),
+    	vec_add(self->pos, (Vec){-32, -32}),
+    	vec_add(self->pos, (Vec){32, 32}),
     	color
     );
 }
@@ -87,7 +87,7 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 }
 
 void game_over(void) {
-	printf("Game Over");
+//	printf("Game Over");
 //	exit(0);
 }
 
@@ -122,7 +122,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
  * Generates bullets which aim for the player
 */
 void game_gen_target_bullet(Game *self, short speed) {
-	if (self->bullets.end - self->bullets.inactive >= 8) return;
+	if (self->bullets.end - self->bullets.inactive < 8) return;
 	Bullet *b = bulletpool_get(&self->bullets);
 	//if (!b) return;
     b->pos = vec_rand(vec_zero, self->draw.max);
@@ -136,7 +136,7 @@ void game_gen_target_bullet(Game *self, short speed) {
  * Generates bullets in a pattern
 */
 void game_gen_pattern_bullets(Game *self, short speed) {
-	if (self->bullets.end - self->bullets.inactive >= 9) return;
+	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
 	int i;
 	Vec pos = vec_rand((Vec){20, 20}, vec_add(self->draw.max, (Vec){-20, -20});
@@ -153,6 +153,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 void game_updatebullets(Game *self, unsigned long delta) {
 	Bullet *b;
     for (b = self->bullets.active; b < self->bullets.inactive; b++) {
+    	bullet_draw(b, &self->draw, DRAW_DIRTYONLY);
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
 		if (!bullet_draw(b, &self->draw, self->colors.bullet)) {
 			bulletpool_put(&self->bullets, b);
@@ -162,24 +163,23 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 void game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	game_gen_pattern_bullets(self, 4);
-	game_gen_target_bullet(self, 4);
+	game_gen_pattern_bullets(self, 8);
+	game_gen_target_bullet(self, 8);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
-	draw_rect(&self->draw, vec_zero, self->draw.max, DRAW_DIRTYONLY);
 	draw_commit(&self->draw);
 }
 
 int main(int argc, char *argv[]) {
 	struct fb_copyarea dirtylist[82];
-	Bullet bullet_pool[40];
+	Bullet bullet_pool[20];
 	Game game = {
 		.colors = {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.speed = 10, .size = 10},
-		.draw = {0, 0, dirtylist, lenof(dirtylist)},
+		.player = {.speed = 16, .size = 128},
+		.draw = {3, 3, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
 //	struct timespec prevtime;
