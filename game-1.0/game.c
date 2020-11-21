@@ -59,8 +59,8 @@ void fatal(void) {
 /* returns true if bullet is on-screen */
 bool bullet_draw(Bullet *self, Draw *draw, unsigned long color) {
     return draw_rect(draw,
-    	vec_add(self->pos, (Vec){-2, -2}),
-    	vec_add(self->pos, (Vec){2, 2}),
+    	vec_add(self->pos, (Vec){-32, -32}),
+    	vec_add(self->pos, (Vec){32, 32}),
     	color
     );
 }
@@ -162,8 +162,8 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 void game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	game_gen_pattern_bullets(self, 1);
-	game_gen_target_bullet(self, 1);
+	game_gen_pattern_bullets(self, 8);
+	game_gen_target_bullet(self, 8);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
@@ -177,8 +177,8 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.speed = 2, .size = 10},
-		.draw = {0, 0, dirtylist, lenof(dirtylist)},
+		.player = {.speed = 16, .size = 128},
+		.draw = {3, 3, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
 //	struct timespec prevtime;
