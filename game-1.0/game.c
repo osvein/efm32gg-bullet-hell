@@ -86,6 +86,16 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 	}
 }
 
+/**
+ * Generates a legal random vector or null
+*/
+Vec legal_vec_rand(Vec pos, Vec min, Vec max) {
+	if (vec_abs(vec_mul(pos, -1), self->player.pos) < player.size * 3) {
+		return vec_rand(min, max);
+	}
+	return;
+}
+
 void game_over(void) {
 //	printf("Game Over");
 //	exit(0);
@@ -123,9 +133,10 @@ void game_updateplayer(Game *self, unsigned long delta) {
 */
 void game_gen_target_bullet(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
+	pos = legal_vec_rand(vec_zero, self->draw.max)
+	if (!pos) return;
 	Bullet *b = bulletpool_get(&self->bullets);
-	//if (!b) return;
-    b->pos = vec_rand(vec_zero, self->draw.max);
+    b->pos =;
     b->velocity = vec_normalize(
     	vec_add(vec_mul(b->pos, -1), self->player.pos),
     	speed
@@ -138,8 +149,9 @@ void game_gen_target_bullet(Game *self, short speed) {
 void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
+	Vec pos = legal_vec_rand((Vec){320, 240}, vec_add(self->draw.max, (Vec){-320, -240}));
+	if (!pos) return;
 	int i;
-	Vec pos = vec_rand((Vec){20, 20}, vec_add(self->draw.max, (Vec){-20, -20}));
 	for (i = 0; i < 8; i++) {
 		Bullet *b = bulletpool_get(&self->bullets);
 		b->pos = pos;
