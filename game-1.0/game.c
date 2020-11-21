@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 			.bullet = 0xFF0000ul
 		},
 		.player = {.speed = 10, .size = 10},
-		.draw = {0, 0, dirtylist, lenof(dirtylist)},
+		.draw = {3, 3, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
 //	struct timespec prevtime;
