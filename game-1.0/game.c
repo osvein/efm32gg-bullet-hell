@@ -124,7 +124,8 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	player_draw(&self->player, &self->draw, self->colors.player);
 	if (!draw_isblank(&self->draw,
 		vec_add(self->player.pos, (Vec){-self->player.size, -self->player.size}),
-		vec_add(self->player.pos, (Vec){self->player.size, self->player.size})
+		vec_add(self->player.pos, (Vec){self->player.size, self->player.size}),
+		self->colors.bullet
 	)) game_over();
 }
 

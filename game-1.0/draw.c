@@ -31,13 +31,13 @@ static unsigned draw_getidx(Draw *self, Vec px) {
 	return px.x + (self->stride/2) * px.y;
 }
 
-bool draw_isblank(Draw *self, Vec pt1, Vec pt2) {
+bool draw_isblank(Draw *self, Vec pt1, Vec pt2, bullet_color) {
 	Vec pixel;
 	pt1 = draw_downscale(self, pt1);
 	pt2 = draw_downscale(self, pt2);
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
 		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
-			if(self->buf[draw_getidx(self, pixel)] != 0) return false;
+			if(self->buf[draw_getidx(self, pixel)] == bullet_color) return false;
 		}
 	}
 	return true;
