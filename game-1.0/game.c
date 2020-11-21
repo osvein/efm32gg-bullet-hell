@@ -87,7 +87,7 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 }
 
 void game_over(void) {
-	printf("Game Over");
+//	printf("Game Over");
 //	exit(0);
 }
 
@@ -171,7 +171,7 @@ void game_tick(Game *self, unsigned long usdelta) {
 
 int main(int argc, char *argv[]) {
 	struct fb_copyarea dirtylist[82];
-	Bullet bullet_pool[40];
+	Bullet bullet_pool[20];
 	Game game = {
 		.colors = {
 			.player = 0xFFFFFFul,
