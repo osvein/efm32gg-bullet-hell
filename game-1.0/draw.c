@@ -51,9 +51,9 @@ void draw_commit(Draw *self) {
 //	ioctl(self->fd, 0x4680, &(struct fb_copyarea){
 //		.dx = 0, .dy = 0, .width = 320, .height = 240
 //	});
-	while (self->dirtylist_len-- > 0) {
-		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
-	}
+//	while (self->dirtylist_len-- > 0) {
+//		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
+//	}
 }
 
 void draw_unmap(Draw *self) {
@@ -122,7 +122,7 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	pt2 = draw_downscale(self, pt2);
 
 	if (self->dirtylist_len >= self->dirtylist_cap) return false;
-	self->dirtylist[self->dirtylist_len++] = (struct fb_copyarea){
+	self->dirtylist[self->dirtylist_len] = (struct fb_copyarea){
 		.dx = pt1.x, .width = pt2.x-pt1.x+1,
 		.dy = pt1.y, .height = pt2.y-pt1.y+1
 	};
@@ -133,5 +133,6 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
+	ioctl(self->fd, 0x4680, self->dirtylist);
 	return true;
 }
