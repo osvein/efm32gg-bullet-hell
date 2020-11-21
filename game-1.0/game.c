@@ -61,8 +61,8 @@ void fatal(void) {
 /* returns true if bullet is on-screen */
 bool bullet_draw(Bullet *self, Draw *draw, unsigned long color) {
     return draw_rect(draw,
-    	vec_add(self->pos, (Vec){-4, -4}),
-    	vec_add(self->pos, (Vec){4, 4}),
+    	vec_add(self->pos, (Vec){-self->radius, -self->radius}),
+    	vec_add(self->pos, (Vec){self->radius, self->radius}),
     	color
     );
 }
@@ -139,6 +139,7 @@ void game_gen_target_bullet(Game *self, short speed) {
     	vec_add(vec_neg(b->pos), self->player.pos),
     	speed
     );
+    b->radius = 256;
 }
 
 /**
@@ -155,6 +156,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 		Bullet *b = bulletpool_get(&self->bullets);
 		b->pos = pos;
 		b->velocity = vec_normalize(angles[i], speed);
+		b->radius = 256;
 	}
 }
 
@@ -174,8 +176,13 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 bool game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
+<<<<<<< HEAD
 	game_gen_target_bullet(self, 2);
 	game_gen_pattern_bullets(self, 2);
+=======
+	game_gen_pattern_bullets(self, 64);
+	game_gen_target_bullet(self, 64);
+>>>>>>> 46bf4ccfcd4217a98204b22842957b3e477667e7
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
@@ -190,8 +197,8 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.health = 1, .speed = 2, .size = 8, .pos vec_scale(game.draw.max, 1, 2)},
-		.draw = {0, 0, dirtylist, lenof(dirtylist)},
+		.player = {.health = 1, .speed = 128, .size = 512},
+		.draw = {6, 6, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
 //	struct timespec prevtime;
@@ -200,9 +207,9 @@ int main(int argc, char *argv[]) {
 	srand(time(NULL));
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
+	game.player.pos = vec_scale(game.draw.max, 1, 2);
 	while (game_tick(&game, 1)); // TODO
 		// clock_gettime(CLOCK_REALTIME, ...);
-		//sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 
 	printf("Game over!");
