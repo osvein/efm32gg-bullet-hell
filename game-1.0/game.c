@@ -132,7 +132,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 */
 void game_gen_target_bullet(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
-	Vec pos = legal_vec_rand(self->player, vec_zero, self->draw.max);
+	Vec pos = legal_vec_rand(&self->player, vec_zero, self->draw.max);
 	if (pos.x == -1) return;
 	Bullet *b = bulletpool_get(&self->bullets);
     b->pos = pos;
@@ -149,7 +149,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
 	Vec border = vec_scale(self->draw.max, 1, 8);
-	Vec pos = legal_vec_rand(self->player, border, vec_add(self->draw.max, vec_neg(border)));
+	Vec pos = legal_vec_rand(&self->player, border, vec_add(self->draw.max, vec_neg(border)));
 	if (pos.x == -1) return;
 	int i;
 	for (i = 0; i < 8; i++) {
