@@ -90,9 +90,9 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 /**
  * Returns a legal vector for bullet spawn or vector outside screen
 */
-Vec legal_vec_rand(Vec min, Vec max) {
+Vec legal_vec_rand(Player self, Vec min, Vec max) {
 	Vec pos = vec_rand(min, max);
-	if (vec_add(vec_neg(pos), self->player.pos) > player.size * 3) {
+	if (vec_add(vec_neg(pos), player.pos) > player.size * 3) {
 		return pos;
 	}
 	return (Vec){-1, -1};
@@ -131,8 +131,8 @@ void game_updateplayer(Game *self, unsigned long delta) {
 */
 void game_gen_target_bullet(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
-	pos = legal_vec_rand(vec_zero, self->draw.max)
-	if (pos.x = -1) return;
+	Vec pos = legal_vec_rand(self->player, vec_zero, self->draw.max);
+	if (pos.x == -1) return;
 	Bullet *b = bulletpool_get(&self->bullets);
     b->pos = pos;
     b->velocity = vec_normalize(
@@ -148,8 +148,8 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
 	Vec border = vec_scale(self->draw.max, 1, 8);
-	Vec pos = legal_vec_rand(border, vec_add(self->draw.max, vec_neg(border)));
-	if (pos.x = -1) return;
+	Vec pos = legal_vec_rand(self->player, border, vec_add(self->draw.max, vec_neg(border)));
+	if (pos.x == -1) return;
 	int i;
 	for (i = 0; i < 8; i++) {
 		Bullet *b = bulletpool_get(&self->bullets);
