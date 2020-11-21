@@ -139,7 +139,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
 	int i;
-	Vec pos = vec_rand((Vec){20, 20}, vec_add(self->draw.max, (Vec){-20, -20});
+	Vec pos = vec_rand((Vec){20, 20}, vec_add(self->draw.max, (Vec){-20, -20}));
 	for (i = 0; i < 8; i++) {
 		Bullet *b = bulletpool_get(&self->bullets);
 		b->pos = pos;
