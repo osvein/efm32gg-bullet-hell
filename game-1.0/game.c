@@ -98,7 +98,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	if (read(self->gamepad_fd, &input, 1) != 1) fatal();
 	direction = vec_mul(
 		(Vec){!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)},
-		0xFFFF
+		0x7FFF
 	);
 
 	player_draw(&self->player, &self->draw, DRAW_DIRTYONLY);
