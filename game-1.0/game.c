@@ -53,7 +53,7 @@ char *argv0;
 
 void fatal(void) {
 	perror(argv0);
-//	exit(1);
+	exit(1);
 }
 
 /* returns true if bullet is on-screen */
@@ -88,7 +88,7 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 
 void game_over(void) {
 	printf("Game Over");
-	exit(0);
+//	exit(0);
 }
 
 void game_updateplayer(Game *self, unsigned long delta) {
