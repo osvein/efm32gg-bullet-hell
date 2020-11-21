@@ -19,7 +19,7 @@ typedef struct {
 } Draw;
 
 /* returns true iff all pixels in the area are black */
-bool draw_isblank(Draw *self, Vec pt, Vec size);
+bool draw_isblank(Draw *self, Vec pt, Vec size, unsigned long bullet_color);
 
 /* writes black to all pixels */
 void draw_blankall(Draw *self);

@@ -31,7 +31,7 @@ static unsigned draw_getidx(Draw *self, Vec px) {
 	return px.x + (self->stride/2) * px.y;
 }
 
-bool draw_isblank(Draw *self, Vec pt1, Vec pt2, bullet_color) {
+bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	Vec pixel;
 	pt1 = draw_downscale(self, pt1);
 	pt2 = draw_downscale(self, pt2);
