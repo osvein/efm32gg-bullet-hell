@@ -30,27 +30,34 @@ static inline unsigned short isqrt(unsigned long x, unsigned bits) {
 	return y >> 1;
 }
 
-/* returns the absolute value (length) of vector v */
-static inline unsigned short vec_abs(Vec v) {
-	return isqrt((unsigned long)v.x * v.x + (unsigned long)v.y * v.y, CHAR_BIT*sizeof(v.x));
+/* returns the norm (length) of vector v */
+static inline unsigned short vec_norm(Vec v) {
+	return isqrt(
+		(unsigned long)v.x * v.x + (unsigned long)v.y * v.y,
+		CHAR_BIT*sizeof(v.x)
+	);
 }
 
-/* returns the sum of two vectors, overflow-unsafe */
+/* returns the sum of vectors a and b, overflow-unsafe */
 static inline Vec vec_add(Vec a, Vec b) {
 	return (Vec){a.x + b.x, a.y + b.y};
 }
 
-/* multiplies both coordinates of v by factor, overflow-usafe */
-static inline Vec vec_mul(Vec v, short factor) {
-	return (Vec){v.x * factor, v.y * factor};
+/* scales vector v by the fraction num/denom
+ * overflow-unsafe except when denom>=num
+ */
+static inline Vec vec_scale(Vec v, short num, long denom) {
+	return (Vec){((long)v.x * num) / denom, ((long)v.y * num) / denom};
+}
+
+/* negates vector v */
+static inline Vec vec_neg(Vec v) {
+	return vec_scale(v, -1, 1);
 }
 
 /* returns a vector with same angle as v, and specified magnitude */
 static inline Vec vec_normalize(Vec v, short magnitude) {
-	unsigned short div = vec_abs(v);
-
-	/* can't use vec_mul due to overflow */
-	return (Vec){((long)v.x * magnitude) / div, ((long)v.y * magnitude) / div};
+	return vec_scale(v, magnitude, vec_norm(v));
 }
 
 /* returns a random vector inside a rectangle using rand() */

@@ -86,16 +86,6 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 	}
 }
 
-/**
- * Generates a legal random vector or null
-*/
-Vec legal_vec_rand(Vec pos, Vec min, Vec max) {
-	if (vec_abs(vec_mul(pos, -1), self->player.pos) < player.size * 3) {
-		return vec_rand(min, max);
-	}
-	return;
-}
-
 void game_over(void) {
 //	printf("Game Over");
 //	exit(0);
@@ -106,9 +96,9 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	unsigned char input;
 
 	if (read(self->gamepad_fd, &input, 1) != 1) fatal();
-	direction = vec_mul(
+	direction = vec_scale(
 		(Vec){!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)},
-		0x7FFF
+		0x7FFF, 1
 	);
 
 	player_draw(&self->player, &self->draw, DRAW_DIRTYONLY);
@@ -117,7 +107,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	);
 	/*self->player = vec_max(self->player, size);
 	self->player = vec_min(self->player,
-		vec_add(self->draw.max, vec_mul(size, -1)
+		vec_add(self->draw.max, vec_neg(size))
 	);*/
 	self->player.pos.x = MIN(MAX(self->player.pos.x, 0+self->player.size), self->draw.max.x-self->player.size);
 	self->player.pos.y = MIN(MAX(self->player.pos.y, 0+self->player.size), self->draw.max.y-self->player.size);
@@ -133,12 +123,10 @@ void game_updateplayer(Game *self, unsigned long delta) {
 */
 void game_gen_target_bullet(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
-	pos = legal_vec_rand(vec_zero, self->draw.max)
-	if (!pos) return;
 	Bullet *b = bulletpool_get(&self->bullets);
-    b->pos =;
+    b->pos = vec_rand(vec_zero, self->draw.max);
     b->velocity = vec_normalize(
-    	vec_add(vec_mul(b->pos, -1), self->player.pos),
+    	vec_add(vec_neg(b->pos), self->player.pos),
     	speed
     );
 }
@@ -149,8 +137,8 @@ void game_gen_target_bullet(Game *self, short speed) {
 void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 9) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
-	Vec pos = legal_vec_rand((Vec){320, 240}, vec_add(self->draw.max, (Vec){-320, -240}));
-	if (!pos) return;
+	Vec border = vec_scale(self->draw.max, 1, 8);
+	Vec pos = vec_rand(border, vec_add(self->draw.max, vec_neg(border)));
 	int i;
 	for (i = 0; i < 8; i++) {
 		Bullet *b = bulletpool_get(&self->bullets);
@@ -166,7 +154,7 @@ void game_updatebullets(Game *self, unsigned long delta) {
 	Bullet *b;
     for (b = self->bullets.active; b < self->bullets.inactive; b++) {
     	bullet_draw(b, &self->draw, DRAW_DIRTYONLY);
-    	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
+    	b->pos = vec_add(b->pos, vec_scale(b->velocity, delta, 1));
 		if (!bullet_draw(b, &self->draw, self->colors.bullet)) {
 			bulletpool_put(&self->bullets, b);
 		}
