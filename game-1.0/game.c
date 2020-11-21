@@ -149,6 +149,7 @@ void game_tick(Game *self, unsigned long usdelta) {
 	game_gen_target_bullet(self, 4);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
+	draw_commit(&self->draw);
 }
 
 int main(int argc, char *argv[]) {
