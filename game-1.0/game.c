@@ -90,9 +90,9 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 /**
  * Returns a legal vector for bullet spawn or vector outside screen
 */
-Vec legal_vec_rand(Player self, Vec min, Vec max) {
+Vec legal_vec_rand(Player *player, Vec min, Vec max) {
 	Vec pos = vec_rand(min, max);
-	if (vec_add(vec_neg(pos), player.pos) > player.size * 3) {
+	if (vec_add(vec_neg(pos), player->pos) > player->size * 3) {
 		return pos;
 	}
 	return (Vec){-1, -1};
