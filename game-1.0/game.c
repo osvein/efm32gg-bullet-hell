@@ -94,7 +94,7 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 Vec legal_vec_rand(Player *player, Vec min, Vec max) {
 	Vec pos = vec_rand(min, max);
 	unsigned long dist = vec_normsq(vec_add(vec_neg(pos), player->pos));
-	if (dist > (player->size * player->size * 9)) return pos;
+	if (dist > (player->size * player->size * 36)) return pos;
 	return (Vec){-1, -1};
 }
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.health = 1, .speed = 2, .size = 8},
+		.player = {.health = 1, .speed = 2, .size = 8, .pos vec_scale(game.draw.max, 1, 2)},
 		.draw = {0, 0, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
