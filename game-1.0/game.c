@@ -176,13 +176,8 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 bool game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-<<<<<<< HEAD
-	game_gen_target_bullet(self, 2);
-	game_gen_pattern_bullets(self, 2);
-=======
-	game_gen_pattern_bullets(self, 64);
 	game_gen_target_bullet(self, 64);
->>>>>>> 46bf4ccfcd4217a98204b22842957b3e477667e7
+	game_gen_pattern_bullets(self, 64);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
