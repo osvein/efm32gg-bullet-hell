@@ -59,8 +59,8 @@ void fatal(void) {
 /* returns true if bullet is on-screen */
 bool bullet_draw(Bullet *self, Draw *draw, unsigned long color) {
     return draw_rect(draw,
-    	vec_add(self->pos, (Vec){-10, -10}),
-    	vec_add(self->pos, (Vec){10, 10}),
+    	vec_add(self->pos, (Vec){-2, -2}),
+    	vec_add(self->pos, (Vec){2, 2}),
     	color
     );
 }
