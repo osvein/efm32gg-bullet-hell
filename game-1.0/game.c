@@ -156,6 +156,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 		Bullet *b = bulletpool_get(&self->bullets);
 		b->pos = pos;
 		b->velocity = vec_normalize(angles[i], speed);
+		b->radius = 256;
 	}
 }
 
