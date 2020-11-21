@@ -186,7 +186,7 @@ bool game_tick(Game *self, unsigned long usdelta) {
 
 int main(int argc, char *argv[]) {
 	struct fb_copyarea dirtylist[82];
-	Bullet bullet_pool[20];
+	Bullet bullet_pool[25];
 	Game game = {
 		.colors = {
 			.player = 0xFFFFFFul,
