@@ -152,6 +152,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 void game_updatebullets(Game *self, unsigned long delta) {
 	Bullet *b;
     for (b = self->bullets.active; b < self->bullets.inactive; b++) {
+    	bullet_draw(b, &self->draw, DRAW_DIRTYONLY);
     	b->pos = vec_add(b->pos, vec_mul(b->velocity, delta));
 		if (!bullet_draw(b, &self->draw, self->colors.bullet)) {
 			bulletpool_put(&self->bullets, b);
