@@ -130,7 +130,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
  * Generates bullets which aim for the player
 */
 void game_gen_target_bullet(Game *self, short speed) {
-	if (self->bullets.end - self->bullets.inactive < 9) return;
+	if (self->bullets.end - self->bullets.inactive < 8) return;
 	Vec pos = legal_vec_rand(&self->player, vec_zero, self->draw.max);
 	if (pos.x == -1) return;
 	Bullet *b = bulletpool_get(&self->bullets);
