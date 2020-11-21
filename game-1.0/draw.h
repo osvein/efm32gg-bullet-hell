@@ -1,13 +1,21 @@
+#include <linux/fb.h>
 #include <stdbool.h>
 #include <stdint.h>
 
+enum {
+	DRAW_DIRTYONLY = 1<<24
+};
+
 typedef struct {
 	unsigned char subwidth, subheight; /* log2(subpixels per pixel) */
+	struct fb_copyarea *dirtylist;
+	size_t dirtylist_cap;
 	int fd;
 	Vec max; /* display size in subpixels */
 	size_t stride; /* bytes per line */
 	size_t bufsize;
 	uint16_t *buf;
+	size_t dirtylist_len;
 } Draw;
 
 /* returns true iff all pixels in the area are black */
@@ -16,11 +24,8 @@ bool draw_isblank(Draw *self, Vec pt, Vec size);
 /* writes black to all pixels */
 void draw_blankall(Draw *self);
 
-/* marks all pixels in the area as dirty */
-void draw_commit(Draw *self, Vec pt1, Vec pt2);
-
-/* marks all pixels as dirty */
-void draw_commitall(Draw *self);
+/* commits the dirtylist */
+void draw_commit(Draw *self);
 
 void draw_unmap(Draw *self);
 void draw_close(Draw *self);

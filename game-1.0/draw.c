@@ -47,16 +47,10 @@ void draw_blankall(Draw *self) {
 	memset(self->buf, 0, self->bufsize);
 }
 
-void draw_commit(Draw *self, Vec pt1, Vec pt2) {
-	pt1 = draw_downscale(self, pt1);
-	pt2 = draw_downscale(self, pt2);
-	ioctl(self->fd, 0x4680, &(struct fb_copyarea){
-		.dx = pt1.x, .dy = pt1.y, .width = pt2.x-pt1.x, .height = pt2.y-pt1.y
-	});
-}
-
-void draw_commitall(Draw *self) {
-	draw_commit(self, vec_zero, self->max);
+void draw_commit(Draw *self) {
+	while (self->dirtylist_len-- > 0) {
+		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
+	}
 }
 
 void draw_unmap(Draw *self) {
@@ -100,6 +94,12 @@ int draw_open(Draw *self, const char *path) {
 	return 0;
 }
 
+int draw_circle(Draw *self, Vec center, short radius, unsigned long color) {
+	Vec pixel;
+
+	
+}
+
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	Vec pixel;
 	uint16_t c = draw_convcolor(color);
@@ -108,14 +108,21 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	pt1.y = MAX(pt1.y, 0);
 	pt2.x = MIN(pt2.x, (self->max.x));
 	pt2.y = MIN(pt2.y, (self->max.y));
-	if(pt1.x > pt2.x || pt1.y > pt2.y) return(false);
-
+	if (pt1.x > pt2.x || pt1.y > pt2.y) return false;
 	pt1 = draw_downscale(self, pt1);
 	pt2 = draw_downscale(self, pt2);
-	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
-		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
+
+	if (self->dirtylist_len >= self->dirtylist_cap) return false;
+	self->dirtylist[self->dirtylist_len++] = (struct fb_copyarea){
+		.dx = pt1.x, .width = pt2.x-pt1.x+1,
+		.dy = pt1.y, .height = pt2.y-pt1.y+1
+	};
+	if (color & DRAW_DIRTYONLY) return true;
+
+	for (pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++) {
+		for (pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++) {
 			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
-	return(true);
+	return true;
 }
