@@ -121,7 +121,7 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	if (self->dirtylist_len >= self->dirtylist_cap) return false;
 	self->dirtylist[self->dirtylist_len++] = (struct fb_copyarea){
 		.dx = pt1.x, .width = pt2.x-pt1.x+1,
-		.dy = pt1.y, .height = pt2.y-pt1.y+1
+		.dy = pt1.y, .height = pt2.y-pt1.y+2 // TODO
 	};
 	if (color & DRAW_DIRTYONLY) return true;
 
