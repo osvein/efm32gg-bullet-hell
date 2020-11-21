@@ -32,7 +32,15 @@ static unsigned draw_getidx(Draw *self, Vec px) {
 }
 
 bool draw_isblank(Draw *self, Vec pt1, Vec pt2) {
-	// TODO
+	Vec pixel;
+	pt1 = draw_downscale(self, pt1);
+	pt2 = draw_downscale(self, pt2);
+	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
+		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
+			if(self->buf[draw_getidx(self, pixel)] != 0) return false;
+		}
+	}
+	return true;
 }
 
 void draw_blankall(Draw *self) {
@@ -48,7 +56,7 @@ void draw_commit(Draw *self, Vec pt1, Vec pt2) {
 }
 
 void draw_commitall(Draw *self) {
-	draw_commit(self, vec_zero, self->size);
+	draw_commit(self, vec_zero, self->max);
 }
 
 void draw_unmap(Draw *self) {
@@ -70,7 +78,7 @@ int draw_map(Draw *self) {
 	{
 		struct fb_var_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_VSCREENINFO, &info) < 0) return -1;
-		self->max = draw_upscale(self, (Vec){info.xres-1, info.yres-1});
+		self->max = vec_add(draw_upscale(self, (Vec){info.xres, info.yres}), (Vec){-1, -1});
 	}
 	self->buf = mmap(NULL, self->bufsize, PROT_READ|PROT_WRITE, MAP_SHARED,
 		self->fd, 0
@@ -92,19 +100,21 @@ int draw_open(Draw *self, const char *path) {
 	return 0;
 }
 
-bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour){
+bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	Vec pixel;
+	uint16_t c = draw_convcolor(color);
+
 	pt1.x = MAX(pt1.x, 0);
 	pt1.y = MAX(pt1.y, 0);
-	pt2.x = MIN(pt2.x, (self->max.x)-1);
-	pt2.y = MIN(pt2.y, (self->max.y)-1);
+	pt2.x = MIN(pt2.x, (self->max.x));
+	pt2.y = MIN(pt2.y, (self->max.y));
 	if(pt1.x > pt2.x || pt1.y > pt2.y) return(false);
 
 	pt1 = draw_downscale(self, pt1);
 	pt2 = draw_downscale(self, pt2);
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
 		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
-			self->buf[draw_getidx(self, pixel)] = colour;
+			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
 	return(true);

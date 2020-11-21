@@ -4,7 +4,7 @@
 typedef struct {
 	unsigned char subwidth, subheight; /* log2(subpixels per pixel) */
 	int fd;
-	Vec size; /* display size in subpixels */
+	Vec max; /* display size in subpixels */
 	size_t stride; /* bytes per line */
 	size_t bufsize;
 	uint16_t *buf;
@@ -39,7 +39,7 @@ int draw_open(Draw *self, const char *path);
  * @param {uint16_t} *buffer - the framebuffer of the LCD screen
  * @param {uint16_t} colour - the color to be drawn in the area
 */
-bool draw_rect(Draw *self, Vec pt1, Vec pt2, uint16_t colour);
+bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long colour);
 
 /**
  * Converts from hexcode colour to binary rgb colour
