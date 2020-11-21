@@ -17,6 +17,7 @@ enum {
 };
 
 typedef struct {
+	unsigned health;
 	short speed;
 	short size;
 	Vec pos;
@@ -86,11 +87,6 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 	}
 }
 
-void game_over(void) {
-	printf("Game Over");
-	exit(0);
-}
-
 void game_updateplayer(Game *self, unsigned long delta) {
 	Vec direction;
 	unsigned char input;
@@ -111,12 +107,12 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	);*/
 	self->player.pos.x = MIN(MAX(self->player.pos.x, 0+self->player.size), self->draw.max.x-self->player.size);
 	self->player.pos.y = MIN(MAX(self->player.pos.y, 0+self->player.size), self->draw.max.y-self->player.size);
-	player_draw(&self->player, &self->draw, self->colors.player);
 	if (!draw_isblank(&self->draw,
 		vec_add(self->player.pos, (Vec){-self->player.size, -self->player.size}),
 		vec_add(self->player.pos, (Vec){self->player.size, self->player.size}),
 		self->colors.bullet
-	)) game_over();
+	)) self->player.health--;
+	player_draw(&self->player, &self->draw, self->colors.player);
 }
 
 /**
@@ -162,13 +158,14 @@ void game_updatebullets(Game *self, unsigned long delta) {
     }
 }
 
-void game_tick(Game *self, unsigned long usdelta) {
+bool game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
 	game_gen_pattern_bullets(self, 2);
 	game_gen_target_bullet(self, 2);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
+	return self->player.health > 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -179,7 +176,7 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.speed = 2, .size = 16},
+		.player = {.health = 1, .speed = 2, .size = 16},
 		.draw = {0, 0, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
@@ -188,12 +185,11 @@ int main(int argc, char *argv[]) {
 	argv0 = *argv;
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
-	while (1) { // TODO
+	while (game_tick(&game, 1)); // TODO
 		// clock_gettime(CLOCK_REALTIME, ...);
-		game_tick(&game, 1);
 		//sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
-	}
 
+	printf("Game over!");
 	return 0;
 }
