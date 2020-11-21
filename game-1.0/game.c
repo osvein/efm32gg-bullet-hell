@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.health = 1, .speed = 2, .size = 16},
+		.player = {.health = 1, .speed = 2, .size = 8},
 		.draw = {0, 0, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
