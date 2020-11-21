@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -197,6 +198,7 @@ int main(int argc, char *argv[]) {
 //	struct timespec prevtime;
 
 	argv0 = *argv;
+	srand(time(NULL));
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	while (game_tick(&game, 1)); // TODO
