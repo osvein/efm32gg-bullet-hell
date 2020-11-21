@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
 	while (1) { // TODO
 		// clock_gettime(CLOCK_REALTIME, ...);
 		game_tick(&game, 1);
-		// sleep(1);
+		sleep(1);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 	}
 
