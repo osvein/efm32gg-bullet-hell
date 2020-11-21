@@ -66,6 +66,7 @@ void draw_close(Draw *self) {
 }
 
 int draw_map(Draw *self) {
+	struct fb_copyarea blank;
 	{
 		struct fb_fix_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_FSCREENINFO, &info) < 0) return -1;
@@ -75,6 +76,7 @@ int draw_map(Draw *self) {
 	{
 		struct fb_var_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_VSCREENINFO, &info) < 0) return -1;
+		blank = (struct fb_copyarea){.width = info.xres, .height = info.yres};
 		self->max = vec_add(
 			draw_upscale(self, (Vec){info.xres, info.yres-1}),
 			(Vec){-1, -1}
@@ -87,6 +89,8 @@ int draw_map(Draw *self) {
 		self->buf = NULL;
 		return -1;
 	}
+	draw_blankall(self);
+	ioctl(self->fd, 0x4680, &blank);
 	return 0;
 }
 
