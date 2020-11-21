@@ -48,9 +48,12 @@ void draw_blankall(Draw *self) {
 }
 
 void draw_commit(Draw *self) {
-	while (self->dirtylist_len-- > 0) {
-		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
-	}
+	ioctl(self->fd, 0x4680, &(struct fb_copyarea){
+		.dx = 0, .dy = 0, .width = 320, .height = 240
+	});
+//	while (self->dirtylist_len-- > 0) {
+//		ioctl(self->fd, 0x4680, &self->dirtylist[self->dirtylist_len]);
+//	}
 }
 
 void draw_unmap(Draw *self) {
@@ -93,11 +96,19 @@ int draw_open(Draw *self, const char *path) {
 	}
 	return 0;
 }
+/*
+int draw_circle(Draw *self, Vec center, short radius, unsigned long color) {
+	Vec r, from, to;
 
-/*int draw_circle(Draw *self, Vec center, short radius, unsigned long color) {
-	Vec from, to;
+	from = draw_downscale(self,
+		vec_max(vec_add(center, (Vec){-radius, -radius}), vec_zero)
+	);
+	to = draw_downscale(self,
+		vec_min(vec_add(center, (Vec){radius, radius}), self->max)
+	);
+	if (from.x > to.x || from.y > to.y) return false;
 
-	from = 
+	if 
 }*/
 
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
