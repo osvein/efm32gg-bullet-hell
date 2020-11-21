@@ -47,7 +47,7 @@ static inline Vec vec_mul(Vec v, short factor) {
 
 /* returns a vector with same angle as v, and specified magnitude */
 static inline Vec vec_normalize(Vec v, short magnitude) {
-	short div = vec_abs(v);
+	unsigned short div = vec_abs(v);
 
 	/* can't use vec_mul due to overflow */
 	return (Vec){((long)v.x * magnitude) / div, ((long)v.y * magnitude) / div};

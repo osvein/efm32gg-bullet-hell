@@ -98,7 +98,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	if (read(self->gamepad_fd, &input, 1) != 1) fatal();
 	direction = vec_mul(
 		(Vec){!(input&RIGHT)-!(input&LEFT), !(input&DOWN)-!(input&UP)},
-		0xFFFF
+		0x7FFF
 	);
 
 	player_draw(&self->player, &self->draw, DRAW_DIRTYONLY);
@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 			.player = 0xFFFFFFul,
 			.bullet = 0xFF0000ul
 		},
-		.player = {.speed = 1, .size = 10},
+		.player = {.speed = 10, .size = 10},
 		.draw = {0, 0, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
