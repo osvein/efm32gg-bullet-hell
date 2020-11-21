@@ -72,7 +72,10 @@ int draw_map(Draw *self) {
 	{
 		struct fb_var_screeninfo info;
 		if (ioctl(self->fd, FBIOGET_VSCREENINFO, &info) < 0) return -1;
-		self->max = vec_add(draw_upscale(self, (Vec){info.xres, info.yres}), (Vec){-1, -2});
+		self->max = vec_add(
+			draw_upscale(self, (Vec){info.xres, info.yres-1}),
+			(Vec){-1, -1}
+		);
 	}
 	self->buf = mmap(NULL, self->bufsize, PROT_READ|PROT_WRITE, MAP_SHARED,
 		self->fd, 0
