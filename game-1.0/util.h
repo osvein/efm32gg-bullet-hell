@@ -8,10 +8,10 @@
 #define endof(a) (a + lenof(a))
 
 typedef struct { short x, y; } Vec;
-typedef struct { Vec from, to; } Rect; /* both inclusive */
+//typedef struct { Vec from, to; } Rect; /* both inclusive */
 
 static const Vec vec_zero = {0, 0};
-static const Rect rect_empty = {vec_zero, {-1, -1}};
+//static const Rect rect_empty = {vec_zero, {-1, -1}};
 
 /* returns integer square root of x, capped at 2^bits
  * fast, gcc tends to unroll with constant bits at -O3
