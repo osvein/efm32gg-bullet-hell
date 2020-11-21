@@ -134,14 +134,15 @@ void game_gen_target_bullet(Game *self, short speed) {
 /**
  * Generates bullets in a pattern
 */
-void game_gen_pattern_bullets(Game *game, short speed) {
+void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) {
 		return;
 	}
-	static Vec[] angles = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+	static Vec angles[] = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+	int i;
 	for (i = 0; i < 8; i++) {
-		Bullet *b = bulletpool_get(&game->bullets);
-		b->pos = vec_rand(vec_zero, game->draw.max);
+		Bullet *b = bulletpool_get(&self->bullets);
+		b->pos = vec_rand(vec_zero, self->draw.max);
 		b->velocity = vec_normalize(angles[i], speed);
 	}
 }
