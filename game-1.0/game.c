@@ -162,8 +162,8 @@ void game_updatebullets(Game *self, unsigned long delta) {
 
 void game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
-	game_gen_pattern_bullets(self, 4);
-	game_gen_target_bullet(self, 4);
+	game_gen_pattern_bullets(self, 1);
+	game_gen_target_bullet(self, 1);
 	game_updatebullets(self, usdelta);
 	game_updateplayer(self, usdelta);
 	draw_commit(&self->draw);
