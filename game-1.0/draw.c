@@ -95,9 +95,9 @@ int draw_open(Draw *self, const char *path) {
 }
 
 int draw_circle(Draw *self, Vec center, short radius, unsigned long color) {
-	Vec pixel;
+	Vec from, to;
 
-	
+	from = 
 }
 
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){

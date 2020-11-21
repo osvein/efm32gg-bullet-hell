@@ -53,7 +53,7 @@ char *argv0;
 
 void fatal(void) {
 	perror(argv0);
-	exit(1);
+//	exit(1);
 }
 
 /* returns true if bullet is on-screen */
