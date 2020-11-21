@@ -30,12 +30,16 @@ static inline unsigned short isqrt(unsigned long x, unsigned bits) {
 	return y >> 1;
 }
 
+/* returns the norm (length) squared of vector v
+ * this is faster than vec_norm because it avoids sqrt
+ */
+static inline unsigned long vec_normsq(Vec v) {
+	return (unsigned long)v.x * v.x + (unsigned long)v.y * v.y;
+}
+
 /* returns the norm (length) of vector v */
 static inline unsigned short vec_norm(Vec v) {
-	return isqrt(
-		(unsigned long)v.x * v.x + (unsigned long)v.y * v.y,
-		CHAR_BIT*sizeof(v.x)
-	);
+	return isqrt(vec_normsq(v), CHAR_BIT*sizeof(v.x));
 }
 
 /* returns the sum of vectors a and b, overflow-unsafe */

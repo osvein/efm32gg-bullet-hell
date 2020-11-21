@@ -93,9 +93,8 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 */
 Vec legal_vec_rand(Player *player, Vec min, Vec max) {
 	Vec pos = vec_rand(min, max);
-	if (vec_add(vec_neg(pos), player->pos) > player->size * 3) {
-		return pos;
-	}
+	unsigned long dist = vec_normsq(vec_add(vec_neg(pos), player->pos));
+	if (dist > (player->size * player->size * 9)) return pos;
 	return (Vec){-1, -1};
 }
 
