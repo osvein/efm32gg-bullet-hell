@@ -53,8 +53,8 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long colour);
  * @returns {uint_t} - binary rgb code of the colour
 */
 static inline uint16_t draw_convcolor(unsigned long hex_rgb){
-	unsigned long r = hex_rgb >> 8 & 0b1111100000000000;
-	unsigned long g = hex_rgb >> 5 & 0b0000011111100000;
-	unsigned long b = hex_rgb >> 3 & 0b0000000000011111;
+	unsigned long r = hex_rgb >> 8 & 0x1F << 11;
+	unsigned long g = hex_rgb >> 5 & 0x3f << 5;
+	unsigned long b = hex_rgb >> 3 & 0x1F;
 	return r|g|b;
 }
