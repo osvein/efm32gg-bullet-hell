@@ -18,7 +18,7 @@ typedef struct {
 	size_t dirtylist_len;
 } Draw;
 
-/* returns true iff all pixels in the area are black */
+/* returns true iff all pixels in the area are not bullet_color */
 bool draw_isblank(Draw *self, Vec pt, Vec size, unsigned long bullet_color);
 
 /* writes black to all pixels */
@@ -36,22 +36,11 @@ int draw_init(Draw *self);
 /* opens framebuffer at path for drawing, returns <0 on error */
 int draw_open(Draw *self, const char *path);
 
-/**
- * Draws the pixels in a rectangular area
- *
- * @param {Vec} pt1 - the upper left limit of the area
- * @param {Vec} pt2 - the lower right limit of the area
- * @param {uint16_t} *buffer - the framebuffer of the LCD screen
- * @param {uint16_t} colour - the color to be drawn in the area
-*/
+/* Draws the pixels in a rectangular area */
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long colour);
 
-/**
- * Converts from hexcode colour to binary rgb colour
- *
- * @param {unsigned long} hex_rgb - hexcode of the colour
- * @returns {uint_t} - binary rgb code of the colour
-*/
+/* Converts from hexcode colour to binary rgb colour */
+ 
 static inline uint16_t draw_convcolor(unsigned long hex_rgb){
 	unsigned long r = hex_rgb >> 8 & 0x1F << 11;
 	unsigned long g = hex_rgb >> 5 & 0x3f << 5;
