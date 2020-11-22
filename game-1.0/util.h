@@ -8,10 +8,8 @@
 #define endof(a) (a + lenof(a))
 
 typedef struct { short x, y; } Vec;
-//typedef struct { Vec from, to; } Rect; /* both inclusive */
 
 static const Vec vec_zero = {0, 0};
-//static const Rect rect_empty = {vec_zero, {-1, -1}};
 
 /* returns integer square root of x, capped at 2^bits
  * fast, gcc tends to unroll with constant bits at -O3
@@ -79,17 +77,3 @@ static inline Vec vec_min(Vec a, Vec b) {
 static inline Vec vec_max(Vec a, Vec b) {
 	return (Vec){a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y};
 }
-
-/*
-static inline Rect rect(Vec a, Vec b) {
-	return (Rect){vec_min(a, b), vec_max(a, b)};
-}
-
-static inline unsigned long rect_width(Rect r) {
-	return (unsigned long)r.b.x - r.a.x + 1;
-}
-
-static inline unsigned long rect_height(Rect r) {
-	return (unsigned long)r.b.y - r.a.y + 1;
-}
-*/
