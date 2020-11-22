@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	game.player.pos = vec_scale(game.draw.max, 1, 2);
 	do {
-		if (++framec > 1000*1000) {
+		if (++framec > 100) {
 			struct timespec t;
 
 			framec = 0;
