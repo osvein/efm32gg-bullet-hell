@@ -207,18 +207,18 @@ int main(int argc, char *argv[]) {
 	game.player.pos = vec_scale(game.draw.max, 1, 2);
 	do {
 		if (++framec > 100) {
-			struct timespec t;
+			struct timespec t, diff;
 
 			framec = 0;
 			clock_gettime(CLOCK_REALTIME, &t);
-			t.tv_sec -= prevtime.tv_sec;
-			t.tv_nsec -= prevtime.tv_nsec;
-			if (t.tv_nsec < 0) {
-				t.tv_nsec += 1000*1000*1000; /* 1 sec */
-				t.tv_sec--;
+			diff.tv_sec = t.tv_sec - prevtime.tv_sec;
+			diff.tv_nsec = t.tv_nsec - prevtime.tv_nsec;
+			if (diff.tv_nsec < 0) {
+				diff.tv_nsec += 1000*1000*1000; /* 1 sec */
+				diff.tv_sec--;
 			}
 			prevtime = t;
-			fprintf(stderr, "%lis %lins", (long)t.tv_sec, t.tv_nsec);
+			fprintf(stderr, "%lis %lins", (long)diff.tv_sec, diff.tv_nsec);
 		}
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 	} while (game_tick(&game, delta));
