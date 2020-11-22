@@ -196,16 +196,31 @@ int main(int argc, char *argv[]) {
 		.draw = {6, 6, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
-//	struct timespec prevtime;
+	unsigned delta = 1;
+	struct timespec prevtime = {};
+	unsigned framec = 0;
 
 	argv0 = *argv;
 	srand(time(NULL));
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	game.player.pos = vec_scale(game.draw.max, 1, 2);
-	while (game_tick(&game, 1)); // TODO
-		// clock_gettime(CLOCK_REALTIME, ...);
+	do {
+		if (++framec > 1000*1000) {
+			struct timespec t;
+
+			framec = 0;
+			clock_gettime(CLOCK_REALTIME, &t);
+			t.tv_sec -= prevtime.tv_sec;
+			t.tv_nsec -= prevtime.tv_nsec;
+			if (t.tv_nsec < 0) {
+				t.tv_nsec += 1000*1000*1000; /* 1 sec */
+				t.tv_sec--;
+			}
+			fprintf(stderr, "%lis %lins", (long)t.tv_sec, t.tv_nsec);
+		}
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
+	} while (game_tick(&game, delta));
 
 	printf("Game over!");
 	return 0;

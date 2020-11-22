@@ -6,7 +6,7 @@
 # add more flags here,
 # but don't remove the "+="
 #
-CFLAGS += -O2 -g -std=c99 -Wall #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
+CFLAGS += -O2 -g -std=c99 -Wall -Werror -D _POSIX_C_SOURCE=200809L #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 CPPFLAGS +=
 LDFLAGS +=
 
