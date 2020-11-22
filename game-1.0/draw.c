@@ -35,7 +35,6 @@ bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	pt2 = draw_downscale(self, pt2);
 	for(pixel.x = pt1.x; pixel.x <= pt2.x; pixel.x++){
 		for(pixel.y = pt1.y; pixel.y <= pt2.y; pixel.y++){
-			if(self->buf[draw_getidx(self, pixel)] != 0) fprintf(stderr,"%hx", self->buf[draw_getidx(self, pixel)]);
 			if(self->buf[draw_getidx(self, pixel)] == conv_color) return false;
 		}
 	}
