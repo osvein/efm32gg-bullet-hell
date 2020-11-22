@@ -36,7 +36,7 @@ int draw_init(Draw *self);
 /* opens framebuffer at path for drawing, returns <0 on error */
 int draw_open(Draw *self, const char *path);
 
-/* Draws the pixels in a rectangular area */
+/*Draws the pixels in a rectangular area and adds them to the dirtylist*/
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long colour);
 
 /* Converts from hexcode colour to binary rgb colour */

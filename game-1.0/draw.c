@@ -27,7 +27,7 @@ static unsigned draw_getidx(Draw *self, Vec px) {
 	return px.x + (self->stride/2) * px.y;
 }
 
-
+/* returns true iff all pixels in the area are not bullet_color */
 bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	Vec pixel;
 	unsigned long conv_color = draw_convcolor(bullet_color);
@@ -41,12 +41,12 @@ bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	return true;
 }
 
-/* sets the entire framebuffer to black */
+/* writes black to all pixels */
 void draw_blankall(Draw *self) {
 	memset(self->buf, 0, self->bufsize);
 }
 
-/* commits all updated areas in the dirty list */
+/* commits the dirtylist */
 void draw_commit(Draw *self) {
 	while (self->dirtylist_len > 0) {
 		ioctl(self->fd, 0x4680, &self->dirtylist[--self->dirtylist_len]);
@@ -62,6 +62,7 @@ void draw_close(Draw *self) {
 	if (self->fd >= 0) close(self->fd);
 }
 
+/* retrieves info and maps framebuffer, returns <0 on error */
 int draw_init(Draw *self) {
 	struct fb_copyarea blank;
 	{
@@ -91,6 +92,7 @@ int draw_init(Draw *self) {
 	return 0;
 }
 
+/* opens framebuffer at path for drawing, returns <0 on error */
 int draw_open(Draw *self, const char *path) {
 	self->fd = open(path, O_RDWR);
 	if (self->fd < 0) return -1;
@@ -100,19 +102,8 @@ int draw_open(Draw *self, const char *path) {
 	}
 	return 0;
 }
-/*
-int draw_circle(Draw *self, Vec center, short radius, unsigned long color) {
-	Vec r, from, to;
 
-	from = draw_downscale(self,
-		vec_max(vec_add(center, (Vec){-radius, -radius}), vec_zero)
-	);
-	to = draw_downscale(self,
-		vec_min(vec_add(center, (Vec){radius, radius}), self->max)
-	);
-	if (from.x > to.x || from.y > to.y) return false;
-}*/
-
+/* Draws the pixels in a rectangular area and adds them to the dirtylist*/
 bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	Vec pixel;
 	uint16_t c = draw_convcolor(color);
@@ -128,7 +119,7 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 	if (self->dirtylist_len >= self->dirtylist_cap) return false;
 	self->dirtylist[self->dirtylist_len++] = (struct fb_copyarea){
 		.dx = pt1.x, .width = pt2.x-pt1.x+1,
-		.dy = pt1.y, .height = pt2.y-pt1.y+2 // TODO
+		.dy = pt1.y, .height = pt2.y-pt1.y+2 
 	};
 	if (color & DRAW_DIRTYONLY) return true;
 
