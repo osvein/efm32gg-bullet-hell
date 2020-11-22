@@ -10,6 +10,7 @@
 #include "util.h"
 #include "draw.h"
 
+/* Mappings from driver-gamepad bits to directions */
 enum {
 	LEFT = 1<<0,
 	UP = 1<<1,
@@ -88,9 +89,7 @@ void bulletpool_put(BulletPool *self, Bullet *b) {
 	}
 }
 
-/**
- * Returns a legal vector for bullet spawn or vector outside screen
-*/
+/* Returns a legal vector for bullet spawn or vector outside screen */
 Vec legal_vec_rand(Player *player, Vec min, Vec max) {
 	Vec pos = vec_rand(min, max);
 	unsigned long dist = vec_normsq(vec_add(vec_neg(pos), player->pos));
@@ -112,10 +111,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	self->player.pos = vec_add(self->player.pos,
 		vec_normalize(direction, self->player.speed*delta)
 	);
-	/*self->player = vec_max(self->player, size);
-	self->player = vec_min(self->player,
-		vec_add(self->draw.max, vec_neg(size))
-	);*/
+
 	self->player.pos.x = MIN(MAX(self->player.pos.x, 0+self->player.size), self->draw.max.x-self->player.size);
 	self->player.pos.y = MIN(MAX(self->player.pos.y, 0+self->player.size), self->draw.max.y-self->player.size);
 	if (!draw_isblank(&self->draw,
@@ -126,9 +122,7 @@ void game_updateplayer(Game *self, unsigned long delta) {
 	player_draw(&self->player, &self->draw, self->colors.player);
 }
 
-/**
- * Generates bullets which aim for the player
-*/
+/* Generates bullets which aim for the player */
 void game_gen_target_bullet(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
 	Vec pos = legal_vec_rand(&self->player, vec_zero, self->draw.max);
@@ -142,9 +136,7 @@ void game_gen_target_bullet(Game *self, short speed) {
     b->radius = 256;
 }
 
-/**
- * Generates bullets in a pattern
-*/
+/* Generates bullets in a pattern */
 void game_gen_pattern_bullets(Game *self, short speed) {
 	if (self->bullets.end - self->bullets.inactive < 8) return;
 	static Vec angles[] = {{0x7FFF, 0}, {0x7FFF, 0x7FFF}, {0, 0x7FFF}, {-0x7FFF, 0x7FFF}, {-0x7FFF, 0}, {-0x7FFF, -0x7FFF}, {0, -0x7FFF}, {0x7FFF, -0x7FFF}};
@@ -160,9 +152,7 @@ void game_gen_pattern_bullets(Game *self, short speed) {
 	}
 }
 
-/**
- * Updates all bullets loaded in game
-*/
+/* Updates all bullets loaded in game */
 void game_updatebullets(Game *self, unsigned long delta) {
 	Bullet *b;
     for (b = self->bullets.active; b < self->bullets.inactive; b++) {
@@ -173,6 +163,7 @@ void game_updatebullets(Game *self, unsigned long delta) {
 		}
     }
 }
+
 
 bool game_tick(Game *self, unsigned long usdelta) {
 	draw_blankall(&self->draw);
@@ -196,16 +187,13 @@ int main(int argc, char *argv[]) {
 		.draw = {6, 6, dirtylist, lenof(dirtylist)},
 		.bullets = {bullet_pool, bullet_pool, endof(bullet_pool)},
 	};
-//	struct timespec prevtime;
 
 	argv0 = *argv;
 	srand(time(NULL));
 	game.gamepad_fd = open("/dev/gamepad", O_RDONLY);
 	if (game.gamepad_fd < 0 || draw_open(&game.draw, "/dev/fb0") < 0) fatal();
 	game.player.pos = vec_scale(game.draw.max, 1, 2);
-	while (game_tick(&game, 1)); // TODO
-		// clock_gettime(CLOCK_REALTIME, ...);
-		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
+	while (game_tick(&game, 1));
 
 	printf("Game over!\n");
 	return 0;
