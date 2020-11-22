@@ -48,7 +48,7 @@ static inline Vec vec_add(Vec a, Vec b) {
 }
 
 /* scales vector v by the fraction num/denom
- * overflow-unsafe except when denom>=num
+ * overflow-unsafe except when |denom|>=|num|
  */
 static inline Vec vec_scale(Vec v, short num, long denom) {
 	return (Vec){((long)v.x * num) / denom, ((long)v.y * num) / denom};

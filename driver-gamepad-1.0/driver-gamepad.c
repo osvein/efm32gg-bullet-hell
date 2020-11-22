@@ -103,6 +103,8 @@ static int __init gpad_init(void)
 		gpad_dev = device_create(gpad_class, NULL, devno, NULL, "gamepad")
 	);
 	if (ret < 0) goto err;
+
+	/* request and map the register range for the entire GPIO port */
 	ret = null_to_err(-EBUSY, devm_request_mem_region(gpad_dev,
 		gpad_portaddr, gpad_portsize, "gamepad_port"
 	));
@@ -111,6 +113,8 @@ static int __init gpad_init(void)
 		gpad_port = devm_ioremap(gpad_dev, gpad_portaddr, gpad_portsize)
 	);
 	if (ret < 0) goto err;
+
+	/* filtered input with pull-up */
 	iowrite32(0x33333333, gpad_port + gpad_portoff_model);
 	iowrite32(0xFF, gpad_port + gpad_portoff_dout);
 
