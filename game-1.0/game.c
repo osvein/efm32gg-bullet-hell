@@ -11,10 +11,10 @@
 #include "draw.h"
 
 enum {
-	LEFT = 1<<0,
-	UP = 1<<1,
-	RIGHT = 1<<2,
-	DOWN = 1<<3,
+	LEFT = 1<<4,
+	UP = 1<<5,
+	RIGHT = 1<<6,
+	DOWN = 1<<7,
 };
 
 typedef struct {
