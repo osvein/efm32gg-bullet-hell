@@ -217,6 +217,7 @@ int main(int argc, char *argv[]) {
 				t.tv_nsec += 1000*1000*1000; /* 1 sec */
 				t.tv_sec--;
 			}
+			prevtime = t;
 			fprintf(stderr, "%lis %lins", (long)t.tv_sec, t.tv_nsec);
 		}
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
