@@ -207,6 +207,6 @@ int main(int argc, char *argv[]) {
 		// clock_gettime(CLOCK_REALTIME, ...);
 		// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
 
-	printf("Game over!");
+	printf("Game over!\n");
 	return 0;
 }
