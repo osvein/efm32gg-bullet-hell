@@ -22,15 +22,11 @@ static Vec draw_upscale(Draw *self, Vec px) {
 	return (Vec){px.x << self->subwidth, px.y << self->subheight};
 }
 
-/**
- * Converts a point to a location in the framebuffer
- *
- * @param {Vec} point - the point to be converted
- * @returns {int} - the appropriate location in the framebuffer
-*/
+/* Converts a point to a location in the framebuffer */
 static unsigned draw_getidx(Draw *self, Vec px) {
 	return px.x + (self->stride/2) * px.y;
 }
+
 
 bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	Vec pixel;
@@ -46,10 +42,12 @@ bool draw_isblank(Draw *self, Vec pt1, Vec pt2, unsigned long bullet_color) {
 	return true;
 }
 
+/* sets the entire framebuffer to black */
 void draw_blankall(Draw *self) {
 	memset(self->buf, 0, self->bufsize);
 }
 
+/* commits all updated areas in the dirty list */
 void draw_commit(Draw *self) {
 	while (self->dirtylist_len > 0) {
 		ioctl(self->fd, 0x4680, &self->dirtylist[--self->dirtylist_len]);
@@ -65,7 +63,7 @@ void draw_close(Draw *self) {
 	if (self->fd >= 0) close(self->fd);
 }
 
-int draw_map(Draw *self) {
+int draw_init(Draw *self) {
 	struct fb_copyarea blank;
 	{
 		struct fb_fix_screeninfo info;
@@ -97,7 +95,7 @@ int draw_map(Draw *self) {
 int draw_open(Draw *self, const char *path) {
 	self->fd = open(path, O_RDWR);
 	if (self->fd < 0) return -1;
-	if (draw_map(self) < 0) {
+	if (draw_init(self) < 0) {
 		draw_close(self);
 		return -1;
 	}
@@ -140,6 +138,5 @@ bool draw_rect(Draw *self, Vec pt1, Vec pt2, unsigned long color){
 			self->buf[draw_getidx(self, pixel)] = c;
 		}
 	}
-	//ioctl(self->fd, 0x4680, self->dirtylist);
 	return true;
 }

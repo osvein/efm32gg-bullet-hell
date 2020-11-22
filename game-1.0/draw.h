@@ -31,7 +31,7 @@ void draw_unmap(Draw *self);
 void draw_close(Draw *self);
 
 /* retrieves info and maps framebuffer, returns <0 on error */
-int draw_map(Draw *self);
+int draw_init(Draw *self);
 
 /* opens framebuffer at path for drawing, returns <0 on error */
 int draw_open(Draw *self, const char *path);
